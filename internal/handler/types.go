@@ -1,27 +1,27 @@
-package commands
+package handler
 
 import (
 	"errors"
 	"fmt"
-
-	"github.com/cl1ckname/cdf/internal/state"
 )
 
 type Code int
 
 const (
-	Add Code = iota
-	Move
-	Remove
+	CodeAdd Code = iota
+	CodeList
+	CodeMove
+	CodeRemove
 )
 
 var ErrUnknownCommand = errors.New("unknown command")
 
 func Parse(s string) (Code, error) {
 	commandMap := map[string]Code{
-		"add":    Add,
-		"move":   Move,
-		"remove": Remove,
+		"add":    CodeAdd,
+		"move":   CodeMove,
+		"list":   CodeList,
+		"remove": CodeRemove,
 	}
 	cmd, ok := commandMap[s]
 	if !ok {
@@ -32,7 +32,7 @@ func Parse(s string) (Code, error) {
 
 type Kwargs = map[string]string
 type Args = []string
-type Handler = func(state state.State, args Args, kwargs Kwargs) error
+type Handler = func(args Args, kwargs Kwargs) error
 
 type Command struct {
 	Handler     Handler

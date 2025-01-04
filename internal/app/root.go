@@ -1,26 +1,16 @@
-package cmd
+package app
 
 import (
 	"fmt"
 	"strings"
 
-	"github.com/cl1ckname/cdf/internal/commands"
-	"github.com/cl1ckname/cdf/internal/handlers"
+	"github.com/cl1ckname/cdf/internal/handler"
 	"github.com/cl1ckname/cdf/internal/store"
 	"github.com/cl1ckname/cdf/internal/store/catalog"
 	"github.com/cl1ckname/cdf/internal/store/filesystem"
 )
 
-var (
-	addCmd = commands.Command{
-		Handler:     handlers.Add,
-		Description: "Add new mark",
-	}
-)
-
-var cmdmap = map[commands.Code]commands.Command{
-	commands.Add: addCmd,
-}
+type Cmdmap = map[handler.Code]handler.Command
 
 func Run(arguments ...string) error {
 	if len(arguments) < 1 {
@@ -32,13 +22,9 @@ func Run(arguments ...string) error {
 	}
 	cmd := args[0]
 	argsTrimCmd := args[1:]
-	code, err := commands.Parse(cmd)
+	code, err := handler.Parse(cmd)
 	if err != nil {
 		return err
-	}
-	handler, ok := cmdmap[code]
-	if !ok {
-		return fmt.Errorf("unknown command: %s", cmd)
 	}
 
 	cdfCatalog := catalog.New("/home/clickname/.config/cdf", filesystem.FS)
@@ -47,16 +33,39 @@ func Run(arguments ...string) error {
 		return err
 	}
 
-	if err := handler.Handler(storage, argsTrimCmd, kwargs); err != nil {
+	marksHandler := handler.NewHandler(storage)
+
+	commands := cmdmap(marksHandler)
+
+	command, ok := commands[code]
+	if !ok {
+		return fmt.Errorf("unknown command: %s", cmd)
+	}
+	if err := command.Handler(argsTrimCmd, kwargs); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func parseFlags(flags []string) (commands.Args, commands.Kwargs, error) {
-	kwargs := make(commands.Kwargs)
-	args := commands.Args{}
+func cmdmap(h handler.Marks) Cmdmap {
+	var (
+		addCmd = handler.Command{
+			Handler:     h.Add,
+			Description: "Add new mark",
+		}
+	)
+
+	var cmdmap = Cmdmap{
+		handler.CodeAdd: addCmd,
+	}
+
+	return cmdmap
+}
+
+func parseFlags(flags []string) (handler.Args, handler.Kwargs, error) {
+	kwargs := make(handler.Kwargs)
+	args := handler.Args{}
 	for _, arg := range flags {
 		kwarg, err := isKwarg(arg)
 		if err != nil {

@@ -8,3 +8,6 @@ build:
 	
 install: build
 	cp bin/cdf $(GOBIN)/cdf
+
+test:
+	go test ./internal/store/catalog/...
