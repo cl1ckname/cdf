@@ -14,6 +14,8 @@ const (
 	CodeRemove
 )
 
+const RecordSeparator = "="
+
 var ErrUnknownCommand = errors.New("unknown command")
 
 func Parse(s string) (Code, error) {
@@ -37,4 +39,10 @@ type Handler = func(args Args, kwargs Kwargs) error
 type Command struct {
 	Handler     Handler
 	Description string
+}
+
+type Call struct {
+	Kwargs Kwargs
+	Args   Args
+	Code   Code
 }
