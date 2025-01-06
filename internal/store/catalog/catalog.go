@@ -1,11 +1,15 @@
 package catalog
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
+
+	"github.com/cl1ckname/cdf/internal/pkg/commands"
 )
 
 type FS interface {
@@ -73,6 +77,23 @@ func (c Catalog) EnsureMarks() error {
 		return nil
 	}
 	return c.sys.Touch(c.marks, Perm)
+}
+
+func (c Catalog) FindRecord(prefix string) (string, error) {
+	file, err := c.sys.Open(c.marks)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		record := scanner.Text()
+		if strings.HasPrefix(record, prefix) {
+			return record, nil
+		}
+	}
+	return "", commands.ErrNotFound
 }
 
 func (c Catalog) marksExists() (bool, error) {

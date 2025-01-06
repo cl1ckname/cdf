@@ -3,6 +3,7 @@ package app
 import (
 	"github.com/cl1ckname/cdf/internal/cli"
 	"github.com/cl1ckname/cdf/internal/handler"
+	"github.com/cl1ckname/cdf/internal/pkg/commands"
 	"github.com/cl1ckname/cdf/internal/store"
 	"github.com/cl1ckname/cdf/internal/store/catalog"
 	"github.com/cl1ckname/cdf/internal/store/filesystem"
@@ -10,7 +11,7 @@ import (
 
 func Run(arguments ...string) error {
 	cdfCatalog := catalog.New("/home/clickname/.config/cdf", filesystem.FS)
-	storage := store.New(cdfCatalog)
+	storage := store.New(cdfCatalog, filesystem.FS)
 	if err := storage.Init(); err != nil {
 		return err
 	}
@@ -19,7 +20,10 @@ func Run(arguments ...string) error {
 	if err != nil {
 		return err
 	}
-	marksHandler := handler.NewHandler(storage)
+
+	addCommand := commands.NewAdd(storage)
+
+	marksHandler := handler.NewMarks(addCommand)
 	if err := marksHandler.Permorm(*call); err != nil {
 		return err
 	}

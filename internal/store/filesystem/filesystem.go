@@ -3,6 +3,7 @@ package filesystem
 import (
 	"io/fs"
 	"os"
+	"path/filepath"
 )
 
 type Filesystem struct{}
@@ -21,6 +22,10 @@ func (f Filesystem) Touch(name string, perm fs.FileMode) error {
 
 func (f Filesystem) Stat(name string) (fs.FileInfo, error) {
 	return os.Stat(name)
+}
+
+func (f Filesystem) Abs(name string) (string, error) {
+	return filepath.Abs(name)
 }
 
 var FS Filesystem

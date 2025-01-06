@@ -3,8 +3,13 @@ package store
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
+	"io/fs"
 	"os"
+	"strings"
+
+	"github.com/cl1ckname/cdf/internal/pkg/commands"
 )
 
 const (
@@ -18,15 +23,24 @@ type Catalog interface {
 	EnsureRoot() error
 	Marks() string
 	EnsureMarks() error
+
+	FindRecord(alias string) (string, error)
+}
+
+type FS interface {
+	Stat(path string) (fs.FileInfo, error)
+	Abs(path string) (string, error)
 }
 
 type Filestore struct {
 	dir Catalog
+	FS
 }
 
-func New(dir Catalog) Filestore {
+func New(dir Catalog, sys FS) Filestore {
 	return Filestore{
 		dir: dir,
+		FS:  sys,
 	}
 }
 
@@ -71,6 +85,19 @@ func (f Filestore) Append(mark string) error {
 		return err
 	}
 	return nil
+}
+
+func (f Filestore) Find(alias string) (string, error) {
+	record, err := f.dir.FindRecord(alias)
+	if err != nil {
+		return "", err
+	}
+	parts := strings.Split(record, commands.RecordSeparator)
+	if len(parts) != 2 {
+		return "", fmt.Errorf("invalid record: %s", record)
+	}
+	path := parts[1]
+	return path, nil
 }
 
 func appendOpenOrCreate(path string) (*os.File, error) {

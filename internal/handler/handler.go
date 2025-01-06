@@ -2,21 +2,19 @@ package handler
 
 import (
 	"fmt"
-)
 
-type Store interface {
-	Append(record string) error
-}
+	"github.com/cl1ckname/cdf/internal/pkg/commands"
+)
 
 type cmdmap = map[Code]Handler
 
 type Marks struct {
-	store Store
+	add commands.Add
 }
 
-func NewHandler(store Store) Marks {
+func NewMarks(add commands.Add) Marks {
 	return Marks{
-		store: store,
+		add: add,
 	}
 }
 
@@ -39,10 +37,5 @@ func (h Marks) Add(args Args, _ Kwargs) error {
 	alias := args[0]
 	path := args[1]
 
-	record := formatRecord(alias, path)
-	return h.store.Append(record)
-}
-
-func formatRecord(alias, path string) string {
-	return alias + RecordSeparator + path
+	return h.add.Execute(alias, path)
 }
