@@ -1,6 +1,9 @@
 package app
 
 import (
+	"os"
+	"path/filepath"
+
 	"github.com/cl1ckname/cdf/internal/cli"
 	"github.com/cl1ckname/cdf/internal/handler"
 	"github.com/cl1ckname/cdf/internal/pkg/commands"
@@ -10,9 +13,15 @@ import (
 )
 
 func Run(arguments ...string) error {
-	cdfCatalog := catalog.New("/home/clickname/.config/cdf", filesystem.FS)
+	defaultFolder, err := os.UserConfigDir()
+	if err != nil {
+		return err
+	}
+	defaultFolder = filepath.Join(defaultFolder, "cdf")
+
+	cdfCatalog := catalog.New(defaultFolder, filesystem.FS)
 	storage := store.New(cdfCatalog, filesystem.FS)
-	if err := storage.Init(); err != nil {
+	if err = storage.Init(); err != nil {
 		return err
 	}
 
