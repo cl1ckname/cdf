@@ -135,6 +135,16 @@ func (f Filestore) List() ([]domain.Mark, error) {
 	return records, nil
 }
 
+func (f Filestore) WriteTo(to, value string) error {
+	dst, err := appendOpen(to)
+	if err != nil {
+		return err
+	}
+	defer dst.Close()
+	_, err = dst.WriteString(value)
+	return err
+}
+
 func (f Filestore) marks() string {
 	return filepath.Join(f.base, MarksFilename)
 }

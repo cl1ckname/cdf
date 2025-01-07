@@ -33,7 +33,9 @@ func Run(arguments ...string) error {
 	presenter := presenters.NewList(os.Stdout)
 	listCommand := commands.NewList(storage, presenter)
 
-	marksHandler := handler.NewMarks(addCommand, listCommand)
+	moveCommand := commands.NewMove(storage)
+
+	marksHandler := handler.NewMarks(addCommand, listCommand, moveCommand)
 
 	call, err := cli.ParseCall(arguments)
 	if err != nil {
