@@ -16,7 +16,7 @@ import (
 const (
 	MarksFilename = "marks"
 	AppendFlag    = os.O_APPEND | os.O_WRONLY
-	ReadFlag      = os.O_WRONLY
+	ReadFlag      = os.O_RDONLY
 	Perm          = 0666
 )
 
@@ -109,6 +109,30 @@ func (f Filestore) findRecord(prefix string) (string, error) {
 		}
 	}
 	return "", commands.ErrNotFound
+}
+
+func (f Filestore) List() ([]domain.Mark, error) {
+	file, err := readOpen(f.marks())
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	var records []domain.Mark
+	for scanner.Scan() {
+		record := scanner.Text()
+		mark, err := domain.ParseMark(record)
+		if err != nil {
+			return nil, err
+		}
+		records = append(records, mark)
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	return records, nil
 }
 
 func (f Filestore) marks() string {

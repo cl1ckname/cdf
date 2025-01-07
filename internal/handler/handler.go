@@ -9,18 +9,24 @@ import (
 type cmdmap = map[Code]Handler
 
 type Marks struct {
-	add commands.Add
+	add  commands.Add
+	list commands.List
 }
 
-func NewMarks(add commands.Add) Marks {
+func NewMarks(
+	add commands.Add,
+	list commands.List,
+) Marks {
 	return Marks{
-		add: add,
+		add:  add,
+		list: list,
 	}
 }
 
 func (m Marks) Permorm(call Call) error {
 	commands := cmdmap{
-		CodeAdd: m.Add,
+		CodeAdd:  m.Add,
+		CodeList: m.List,
 	}
 
 	cmd, ok := commands[call.Code]
@@ -38,4 +44,8 @@ func (h Marks) Add(args Args, _ Kwargs) error {
 	path := args[1]
 
 	return h.add.Execute(alias, path)
+}
+
+func (h Marks) List(_ Args, _ Kwargs) error {
+	return h.list.Execute()
 }

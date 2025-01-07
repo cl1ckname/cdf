@@ -8,6 +8,7 @@ import (
 	"github.com/cl1ckname/cdf/internal/handler"
 	"github.com/cl1ckname/cdf/internal/pkg/commands"
 	"github.com/cl1ckname/cdf/internal/pkg/fabrics"
+	"github.com/cl1ckname/cdf/internal/pkg/presenters"
 	"github.com/cl1ckname/cdf/internal/store"
 	"github.com/cl1ckname/cdf/internal/store/catalog"
 	"github.com/cl1ckname/cdf/internal/store/filesystem"
@@ -25,16 +26,19 @@ func Run(arguments ...string) error {
 	if err = store.Init(cdfCatalog); err != nil {
 		return err
 	}
+
 	marksFabric := fabrics.NewMarks(filesystem.FS)
+	addCommand := commands.NewAdd(storage, marksFabric)
+
+	presenter := presenters.NewList(os.Stdout)
+	listCommand := commands.NewList(storage, presenter)
+
+	marksHandler := handler.NewMarks(addCommand, listCommand)
 
 	call, err := cli.ParseCall(arguments)
 	if err != nil {
 		return err
 	}
-
-	addCommand := commands.NewAdd(storage, marksFabric)
-
-	marksHandler := handler.NewMarks(addCommand)
 	if err := marksHandler.Permorm(*call); err != nil {
 		return err
 	}
