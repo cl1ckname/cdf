@@ -21,8 +21,8 @@ func Run(arguments ...string) error {
 	defaultFolder = filepath.Join(defaultFolder, "cdf")
 
 	cdfCatalog := catalog.New(defaultFolder, filesystem.FS)
-	storage := store.New(cdfCatalog, filesystem.FS)
-	if err = storage.Init(); err != nil {
+	storage := store.New(filesystem.FS, defaultFolder)
+	if err = store.Init(cdfCatalog); err != nil {
 		return err
 	}
 	marksFabric := fabrics.NewMarks(filesystem.FS)

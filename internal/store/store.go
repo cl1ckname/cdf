@@ -6,23 +6,23 @@ import (
 	"io"
 	"io/fs"
 	"os"
+	"path/filepath"
+	"strings"
 
+	"github.com/cl1ckname/cdf/internal/pkg/commands"
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
 )
 
 const (
-	AppendFlag = os.O_APPEND | os.O_WRONLY
-	ReadFlag   = os.O_WRONLY
-	Perm       = 0666
+	MarksFilename = "marks"
+	AppendFlag    = os.O_APPEND | os.O_WRONLY
+	ReadFlag      = os.O_WRONLY
+	Perm          = 0666
 )
 
 type Catalog interface {
-	Root() string
 	EnsureRoot() error
-	Marks() string
 	EnsureMarks() error
-
-	FindRecord(alias string) (string, error)
 }
 
 type FS interface {
@@ -31,29 +31,29 @@ type FS interface {
 }
 
 type Filestore struct {
-	dir Catalog
 	FS
+	base string
 }
 
-func New(dir Catalog, sys FS) Filestore {
+func New(sys FS, base string) Filestore {
 	return Filestore{
-		dir: dir,
-		FS:  sys,
+		FS:   sys,
+		base: base,
 	}
 }
 
-func (f Filestore) Init() error {
-	if err := f.dir.EnsureRoot(); err != nil {
+func Init(dir Catalog) error {
+	if err := dir.EnsureRoot(); err != nil {
 		return err
 	}
-	if err := f.dir.EnsureMarks(); err != nil {
+	if err := dir.EnsureMarks(); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (f Filestore) Load() ([]string, error) {
-	file, err := readOpenOrCreate(f.dir.Marks())
+	file, err := readOpen(f.marks())
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (f Filestore) Load() ([]string, error) {
 }
 
 func (f Filestore) Append(mark domain.Mark) error {
-	file, err := appendOpenOrCreate(f.dir.Marks())
+	file, err := appendOpen(f.marks())
 	if err != nil {
 		return err
 	}
@@ -87,30 +87,46 @@ func (f Filestore) Append(mark domain.Mark) error {
 }
 
 func (f Filestore) Find(alias string) (domain.Mark, error) {
-	record, err := f.dir.FindRecord(alias)
+	record, err := f.findRecord(alias)
 	if err != nil {
 		return domain.Mark{}, err
 	}
 	return domain.ParseMark(record)
 }
 
-func appendOpenOrCreate(path string) (*os.File, error) {
-	return openOrCreateWithFlag(path, AppendFlag)
-}
-
-func readOpenOrCreate(path string) (*os.File, error) {
-	return openOrCreateWithFlag(path, ReadFlag)
-}
-
-func openOrCreateWithFlag(path string, flag int) (*os.File, error) {
-	file, err := os.OpenFile(path, flag, Perm)
-	if err == nil {
-		return file, nil
+func (f Filestore) findRecord(prefix string) (string, error) {
+	file, err := readOpen(f.marks())
+	if err != nil {
+		return "", err
 	}
-	file, err = os.Create(path)
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		record := scanner.Text()
+		if strings.HasPrefix(record, prefix) {
+			return record, nil
+		}
+	}
+	return "", commands.ErrNotFound
+}
+
+func (f Filestore) marks() string {
+	return filepath.Join(f.base, MarksFilename)
+}
+
+func appendOpen(path string) (*os.File, error) {
+	return openWithFlag(path, AppendFlag)
+}
+
+func readOpen(path string) (*os.File, error) {
+	return openWithFlag(path, ReadFlag)
+}
+
+func openWithFlag(path string, flag int) (*os.File, error) {
+	file, err := os.OpenFile(path, flag, Perm)
 	if err != nil {
 		return nil, err
 	}
 	return file, nil
-
 }
