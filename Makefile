@@ -11,3 +11,6 @@ install: build
 
 test:
 	go test ./...
+
+linter:
+	go vet ./...
