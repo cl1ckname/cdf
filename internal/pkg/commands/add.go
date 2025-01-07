@@ -3,62 +3,47 @@ package commands
 import (
 	"errors"
 	"fmt"
-	"io/fs"
-	"regexp"
+
+	"github.com/cl1ckname/cdf/internal/pkg/domain"
 )
 
 type Appender interface {
-	Append(record string) error
-	Find(alias string) (string, error)
-	Stat(path string) (fs.FileInfo, error)
-	Abs(path string) (string, error)
+	Append(record domain.Mark) error
+	Find(alias string) (domain.Mark, error)
 }
 
-// RecordSeparator is a sybol that separates alias and corresponding cd path
-const RecordSeparator = "="
+type MarkFabric interface {
+	Build(alias, path string) (*domain.Mark, error)
+}
 
-const AliasRE = `^[\w-]+`
-
-var aliasRe = regexp.MustCompile(AliasRE)
-
-var ErrInvalidAlias = errors.New("invalid path alias")
-var ErrInvalidPath = errors.New("invalid target path")
 var ErrAlreadyExists = errors.New("bookmark with this alias already exist")
 var ErrNotFound = errors.New("not found")
 
 type Add struct {
 	appender Appender
+	builder  MarkFabric
 }
 
-func NewAdd(a Appender) Add {
+func NewAdd(a Appender, f MarkFabric) Add {
 	return Add{
 		appender: a,
+		builder:  f,
 	}
 }
 
 func (c Add) Execute(alias, path string) error {
-	if !aliasRe.MatchString(alias) {
-		return fmt.Errorf("alias should contain only a-z A-Z 0-9 _ - symbols: %w", ErrInvalidAlias)
-	}
-	if rec, err := c.appender.Find(alias); err == nil {
-		return fmt.Errorf("this alias already in use (%s): %w", rec, ErrNotFound)
-	}
-
-	info, err := c.appender.Stat(path)
+	mark, err := c.builder.Build(alias, path)
 	if err != nil {
 		return err
 	}
-	if !info.IsDir() {
-		return fmt.Errorf("path sould be and folder, not file: %w", ErrInvalidPath)
-	}
-	absPath, err := c.appender.Abs(path)
-	if err != nil {
-		return err
-	}
-	record := formatRecord(alias, absPath)
-	return c.appender.Append(record)
-}
 
-func formatRecord(alias, path string) string {
-	return alias + RecordSeparator + path
+	rec, err := c.appender.Find(mark.Alias)
+	if err == nil {
+		return fmt.Errorf("this alias already in use (%s): %w", rec, ErrAlreadyExists)
+	}
+	if !errors.Is(err, ErrNotFound) {
+		return fmt.Errorf("find error: %w", err)
+	}
+
+	return c.appender.Append(*mark)
 }

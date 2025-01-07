@@ -3,13 +3,11 @@ package store
 import (
 	"bufio"
 	"errors"
-	"fmt"
 	"io"
 	"io/fs"
 	"os"
-	"strings"
 
-	"github.com/cl1ckname/cdf/internal/pkg/commands"
+	"github.com/cl1ckname/cdf/internal/pkg/domain"
 )
 
 const (
@@ -75,29 +73,25 @@ func (f Filestore) Load() ([]string, error) {
 	return marks, nil
 }
 
-func (f Filestore) Append(mark string) error {
+func (f Filestore) Append(mark domain.Mark) error {
 	file, err := appendOpenOrCreate(f.dir.Marks())
 	if err != nil {
 		return err
 	}
-	_, err = file.WriteString(mark + "\n")
+	line := mark.String() + "\n"
+	_, err = file.WriteString(line)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (f Filestore) Find(alias string) (string, error) {
+func (f Filestore) Find(alias string) (domain.Mark, error) {
 	record, err := f.dir.FindRecord(alias)
 	if err != nil {
-		return "", err
+		return domain.Mark{}, err
 	}
-	parts := strings.Split(record, commands.RecordSeparator)
-	if len(parts) != 2 {
-		return "", fmt.Errorf("invalid record: %s", record)
-	}
-	path := parts[1]
-	return path, nil
+	return domain.ParseMark(record)
 }
 
 func appendOpenOrCreate(path string) (*os.File, error) {
