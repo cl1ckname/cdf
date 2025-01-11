@@ -4,9 +4,11 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/cl1ckname/cdf/embeds"
 	"github.com/cl1ckname/cdf/internal/cli"
 	"github.com/cl1ckname/cdf/internal/handler"
 	"github.com/cl1ckname/cdf/internal/pkg/commands"
+	"github.com/cl1ckname/cdf/internal/pkg/domain"
 	"github.com/cl1ckname/cdf/internal/pkg/fabrics"
 	"github.com/cl1ckname/cdf/internal/pkg/presenters"
 	"github.com/cl1ckname/cdf/internal/store"
@@ -35,7 +37,16 @@ func Run(arguments ...string) error {
 
 	moveCommand := commands.NewMove(storage)
 
-	marksHandler := handler.NewMarks(addCommand, listCommand, moveCommand)
+	shellCommand := commands.NewShell(os.Stdout, commands.Wraps{
+		domain.FishShell: embeds.FishShell,
+	})
+
+	marksHandler := handler.NewMarks(
+		addCommand,
+		listCommand,
+		moveCommand,
+		shellCommand,
+	)
 
 	call, err := cli.ParseCall(arguments)
 	if err != nil {

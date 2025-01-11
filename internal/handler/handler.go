@@ -4,33 +4,38 @@ import (
 	"fmt"
 
 	"github.com/cl1ckname/cdf/internal/pkg/commands"
+	"github.com/cl1ckname/cdf/internal/pkg/domain"
 )
 
 type cmdmap = map[Code]Handler
 
 type Marks struct {
-	add  commands.Add
-	list commands.List
-	move commands.Move
+	add   commands.Add
+	list  commands.List
+	move  commands.Move
+	shell commands.Shell
 }
 
 func NewMarks(
 	add commands.Add,
 	list commands.List,
 	move commands.Move,
+	shell commands.Shell,
 ) Marks {
 	return Marks{
-		add:  add,
-		list: list,
-		move: move,
+		add:   add,
+		list:  list,
+		move:  move,
+		shell: shell,
 	}
 }
 
 func (m Marks) Permorm(call Call) error {
 	commands := cmdmap{
-		CodeAdd:  m.Add,
-		CodeList: m.List,
-		CodeMove: m.Move,
+		CodeAdd:   m.Add,
+		CodeList:  m.List,
+		CodeMove:  m.Move,
+		CodeShell: m.Shell,
 	}
 
 	cmd, ok := commands[call.Code]
@@ -72,4 +77,16 @@ func (h Marks) Move(args Args, kw Kwargs) error {
 	}
 	fmt.Printf("you're in %s now\n", path)
 	return nil
+}
+
+func (h Marks) Shell(args Args, kw Kwargs) error {
+	if len(args) != 1 {
+		return fmt.Errorf("one shell name required, got %d", len(args))
+	}
+	arg := args[0]
+	shell, err := domain.ParseShell(arg)
+	if err != nil {
+		return err
+	}
+	return h.shell.Execute(shell)
 }
