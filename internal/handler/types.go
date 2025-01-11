@@ -12,6 +12,7 @@ const (
 	CodeList
 	CodeMove
 	CodeRemove
+	CodeShell
 )
 
 const RecordSeparator = "="
@@ -24,6 +25,7 @@ func Parse(s string) (Code, error) {
 		"move":   CodeMove,
 		"list":   CodeList,
 		"remove": CodeRemove,
+		"shell":  CodeShell,
 	}
 	cmd, ok := commandMap[s]
 	if !ok {
