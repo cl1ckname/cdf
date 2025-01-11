@@ -4,5 +4,10 @@ import (
 	_ "embed"
 )
 
-//go:embed shell.fish
-var FishShell []byte
+var (
+	//go:embed shell.fish
+	FishShell []byte
+
+	//go:embed shell.bash
+	BashShell []byte
+)

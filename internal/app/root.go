@@ -39,6 +39,7 @@ func Run(arguments ...string) error {
 
 	shellCommand := commands.NewShell(os.Stdout, commands.Wraps{
 		domain.FishShell: embeds.FishShell,
+		domain.BashShell: embeds.BashShell,
 	})
 
 	marksHandler := handler.NewMarks(
