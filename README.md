@@ -4,6 +4,58 @@
 
 **Warning! CDF is under heavy development! Use for your own risk!**
 
+## Install
+Right now there is no way to get a ready-made binary, but work is actively underway on this. For now, you can compile and install the utility yourself.
+
+### Get the binary
+
+Clone repository using git command
+
+```console
+git clone https://github.com/cl1ckname/cdf
+```
+
+Cd to it
+
+```console
+cd cdf
+```
+
+Install binary to `$GOBIN`
+
+```console
+make install
+```
+
+### Integrate it to shell
+The process of integrating SDF into different shells varies slightly. But in general, the point is to add the appropriate line to the end of your shell configuration file.
+
+<details>
+<summary>Bash</summary>
+Add this to end of your <code>.bashrc</code> file
+
+```bash
+eval "$(cdf shell bash)"
+```
+</details>
+
+<details>
+<summary>Fish</summary>
+Add this to end of your <code>.config/fish/config.fish</code> file
+
+```bash
+cdf shell fish | source
+```
+</details>
+
+<details>
+<summary>Zsh</summary>
+
+*Coming soon...*
+
+</details>
+
+
 ## Usage
 The CDF should be treated as a list of bookmarks in the browser, not as a search bar, unlike similar projects the CDF does not collect any data on its own, so the user himself must add points for quick navigation. 
 ### Add mark
@@ -16,7 +68,7 @@ cdf add home /home/username
 Both absolute and relative paths can be used for this.
 
 ```console
-cdf add projects . # in /home/username/projects
+cdf add projects ./projects # in /home/username/projects
 ```
 
 ### List marks
@@ -25,6 +77,13 @@ The list of brands can be easily retrieved by the `list` command
 
 ```console
 cdf list
+```
+
+The next text will be printed
+
+```
+home		/home/username
+projects 	/home/username/projects
 ```
 
 ### Jump to mark
