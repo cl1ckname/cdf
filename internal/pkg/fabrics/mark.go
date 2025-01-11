@@ -28,7 +28,7 @@ func (b Marks) Build(alias, path string) (*domain.Mark, error) {
 		return nil, err
 	}
 	if !info.IsDir() {
-		return nil, fmt.Errorf("path sould be and folder, not file: %w", domain.ErrInvalidPath)
+		return nil, fmt.Errorf("path could be and folder, not file: %w", domain.ErrInvalidPath)
 	}
 	absPath, err := b.fs.Abs(path)
 	if err != nil {

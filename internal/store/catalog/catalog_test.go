@@ -71,12 +71,9 @@ func TestEnsureRoot(t *testing.T) {
 				if *mkd != f.mkdirs[0] {
 					t.Fatalf("wrong mkdir: %s vs %s", *mkd, f.mkdirs[0])
 				}
-			} else {
-				if len(f.mkdirs) != 0 {
-					t.Fatalf("mkdir should not be caused")
-				}
+			} else if len(f.mkdirs) != 0 {
+				t.Fatalf("mkdir should not be caused")
 			}
-
 		})
 	}
 }
@@ -132,12 +129,9 @@ func TestEnsureMarks(t *testing.T) {
 				if *mkd != f.touchs[0] {
 					t.Fatalf("wrong mkdir: %s vs %s", *mkd, f.touchs[0])
 				}
-			} else {
-				if len(f.touchs) != 0 {
-					t.Fatalf("mkdir should not be caused")
-				}
+			} else if len(f.touchs) != 0 {
+				t.Fatalf("mkdir should not be caused")
 			}
-
 		})
 	}
 }
@@ -149,7 +143,7 @@ type fsmock struct {
 }
 
 func (f *fsmock) Touch(path string, _ fs.FileMode) error {
-	f.touchs = append(f.mkdirs, path)
+	f.touchs = append(f.touchs, path)
 	return nil
 }
 

@@ -22,6 +22,7 @@ func NewMarks(
 	move commands.Move,
 	shell commands.Shell,
 ) Marks {
+
 	return Marks{
 		add:   add,
 		list:  list,
@@ -30,12 +31,12 @@ func NewMarks(
 	}
 }
 
-func (m Marks) Permorm(call Call) error {
+func (h Marks) Permorm(call Call) error {
 	commands := cmdmap{
-		CodeAdd:   m.Add,
-		CodeList:  m.List,
-		CodeMove:  m.Move,
-		CodeShell: m.Shell,
+		CodeAdd:   h.Add,
+		CodeList:  h.List,
+		CodeMove:  h.Move,
+		CodeShell: h.Shell,
 	}
 
 	cmd, ok := commands[call.Code]
