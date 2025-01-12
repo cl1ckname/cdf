@@ -32,11 +32,12 @@ func (h Help) writeGeneralMessage() error {
 
 func (h Help) writeCommandMessage(cmd domain.Command) error {
 	descriptions := map[domain.Command]string{
-		domain.Command("f"): HelpMessageF,
-		domain.CommandAdd:   HelpMessageAdd,
-		domain.CommandHelp:  HelpMessageList,
-		domain.CommandShell: HelpMessageShell,
-		domain.CommandMove:  HelpMessageMove,
+		domain.Command("f"):  HelpMessageF,
+		domain.CommandAdd:    HelpMessageAdd,
+		domain.CommandHelp:   HelpMessageList,
+		domain.CommandRemove: HelpMessageRemove,
+		domain.CommandShell:  HelpMessageShell,
+		domain.CommandMove:   HelpMessageMove,
 	}
 	message, ok := descriptions[cmd]
 	if !ok {
@@ -78,6 +79,7 @@ manage bookmarks:
 	help    Print this message or get information about command
 	add     Add new path bookmark
 	list    Get list of added marks
+	remove  Remove mark by alias
 
 service commands for f usage:
 	shell   Prints shell commands for f command using and autocomplitions
@@ -141,8 +143,17 @@ exammples:
 	cdf shell fish
 `
 
+const HelpMessageRemove = `
+usege: cdf remove <alias>
+
+summary: removes mark from list by alias
+
+exaples:
+	cdf remove home
+`
+
 const HelpMessageMove = `
-usege cdf move <alias> --cwf-file=<path>
+usege: cdf move <alias> --cwf-file=<path>
 
 summary: writes path of alias to cwd-file
 

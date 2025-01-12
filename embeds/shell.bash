@@ -12,16 +12,16 @@ function f() {
 _cdf_move_completion() {
     # Define the marks file location
     local marks_file="$HOME/.config/cdf/marks"
-    if [[ "${COMP_WORDS[1]}" == "move" || "${COMP_WORDS[0]}" == "f" ]]; then
+    if [[ "${COMP_WORDS[1]}" == "remove" || "${COMP_WORDS[1]}" == "move" || "${COMP_WORDS[0]}" == "f" ]]; then
 		# Check if the marks file exists
 		if [[ -f "$marks_file" ]]; then
 			# Read the lines from the marks file
 			COMPREPLY=($(compgen -W "$(cat $marks_file | cut -d = -f 1)" -- "${COMP_WORDS[COMP_CWORD]}"))
 		fi
 	elif [[ "${COMP_WORDS[0]}" == "cdf" && "${COMP_WORDS[1]}" == "help" ]]; then
-		COMPREPLY=($(compgen -W "help f add move list shell" -- "${COMP_WORDS[COMP_CWORD]}"))
+		COMPREPLY=($(compgen -W "help f add move remove list shell" -- "${COMP_WORDS[COMP_CWORD]}"))
 	elif [[ "${COMP_WORDS[0]}" == "cdf" ]]; then
-		COMPREPLY=($(compgen -W "help add move list shell" -- "${COMP_WORDS[COMP_CWORD]}"))
+		COMPREPLY=($(compgen -W "help add move remove list shell" -- "${COMP_WORDS[COMP_CWORD]}"))
 	fi
 }
 
