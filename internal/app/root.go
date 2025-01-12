@@ -37,6 +37,8 @@ func Run(version string, arguments ...string) error {
 	presenter := presenters.NewList(os.Stdout)
 	listCommand := commands.NewList(storage, presenter)
 
+	removeCommand := commands.NewRemove(storage)
+
 	moveCommand := commands.NewMove(storage)
 
 	shellCommand := commands.NewShell(os.Stdout, commands.Wraps{
@@ -48,6 +50,7 @@ func Run(version string, arguments ...string) error {
 		helpCommand,
 		addCommand,
 		listCommand,
+		removeCommand,
 		moveCommand,
 		shellCommand,
 	)

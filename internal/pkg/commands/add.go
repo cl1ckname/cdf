@@ -16,9 +16,6 @@ type MarkFabric interface {
 	Build(alias, path string) (*domain.Mark, error)
 }
 
-var ErrAlreadyExists = errors.New("bookmark with this alias already exist")
-var ErrNotFound = errors.New("not found")
-
 type Add struct {
 	appender Appender
 	builder  MarkFabric
@@ -39,9 +36,9 @@ func (c Add) Execute(alias, path string) error {
 
 	rec, err := c.appender.Find(mark.Alias)
 	if err == nil {
-		return fmt.Errorf("this alias already in use (%s): %w", rec, ErrAlreadyExists)
+		return fmt.Errorf("this alias already in use (%s): %w", rec, domain.ErrAlreadyExists)
 	}
-	if !errors.Is(err, ErrNotFound) {
+	if !errors.Is(err, domain.ErrNotFound) {
 		return fmt.Errorf("find error: %w", err)
 	}
 

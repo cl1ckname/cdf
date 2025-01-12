@@ -16,6 +16,8 @@ const RecordSeparator = "="
 
 var ErrInvalidAlias = errors.New("invalid path alias")
 var ErrInvalidPath = errors.New("invalid target path")
+var ErrAlreadyExists = errors.New("bookmark with this alias already exist")
+var ErrNotFound = errors.New("not found")
 
 type Mark struct {
 	Alias string

@@ -9,12 +9,12 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/cl1ckname/cdf/internal/pkg/commands"
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
 )
 
 const (
 	MarksFilename = "marks"
+	ReplaceFlag   = os.O_WRONLY
 	AppendFlag    = os.O_APPEND | os.O_WRONLY
 	ReadFlag      = os.O_RDONLY
 	Perm          = 0666
@@ -108,7 +108,7 @@ func (f Filestore) findRecord(prefix string) (string, error) {
 			return record, nil
 		}
 	}
-	return "", commands.ErrNotFound
+	return "", domain.ErrNotFound
 }
 
 func (f Filestore) List() ([]domain.Mark, error) {
@@ -145,6 +145,22 @@ func (f Filestore) WriteTo(to, value string) error {
 	return err
 }
 
+func (f Filestore) Replace(marks []domain.Mark) error {
+	dst, err := replaceOpen(f.marks())
+	if err != nil {
+		return err
+	}
+	defer dst.Close()
+	for _, mark := range marks {
+		line := mark.String() + "\n"
+		if _, err := dst.WriteString(line); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (f Filestore) marks() string {
 	return filepath.Join(f.base, MarksFilename)
 }
@@ -155,6 +171,10 @@ func appendOpen(path string) (*os.File, error) {
 
 func readOpen(path string) (*os.File, error) {
 	return openWithFlag(path, ReadFlag)
+}
+
+func replaceOpen(path string) (*os.File, error) {
+	return openWithFlag(path, ReplaceFlag)
 }
 
 func openWithFlag(path string, flag int) (*os.File, error) {

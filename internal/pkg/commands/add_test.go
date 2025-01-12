@@ -16,7 +16,7 @@ func TestAddSuccess(t *testing.T) {
 	}
 
 	ap := new(appender)
-	ap.findErr = commands.ErrNotFound
+	ap.findErr = domain.ErrNotFound
 
 	f := new(fabric)
 	f.mark = &newMark
@@ -55,7 +55,7 @@ func TestAddAlreadyExists(t *testing.T) {
 	if err == nil {
 		t.Fatalf("expected error: %v", err)
 	}
-	if !errors.Is(err, commands.ErrAlreadyExists) {
+	if !errors.Is(err, domain.ErrAlreadyExists) {
 		t.Fatalf("expected ErrAlreadyExists, go %v", err)
 	}
 }

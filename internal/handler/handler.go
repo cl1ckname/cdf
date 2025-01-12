@@ -15,27 +15,30 @@ const (
 )
 
 type Marks struct {
-	help  commands.Help
-	add   commands.Add
-	list  commands.List
-	move  commands.Move
-	shell commands.Shell
+	help   commands.Help
+	add    commands.Add
+	list   commands.List
+	remove commands.Remove
+	move   commands.Move
+	shell  commands.Shell
 }
 
 func NewMarks(
 	help commands.Help,
 	add commands.Add,
 	list commands.List,
+	remove commands.Remove,
 	move commands.Move,
 	shell commands.Shell,
 ) Marks {
 
 	return Marks{
-		help:  help,
-		add:   add,
-		list:  list,
-		move:  move,
-		shell: shell,
+		help:   help,
+		add:    add,
+		list:   list,
+		remove: remove,
+		move:   move,
+		shell:  shell,
 	}
 }
 
@@ -54,11 +57,12 @@ func (h Marks) Permorm(call Call) error {
 
 func (h Marks) performCommand(code domain.Command, args Args, kwargs Kwargs) error {
 	commands := cmdmap{
-		domain.CommandHelp:  h.Help,
-		domain.CommandAdd:   h.Add,
-		domain.CommandList:  h.List,
-		domain.CommandMove:  h.Move,
-		domain.CommandShell: h.Shell,
+		domain.CommandHelp:   h.Help,
+		domain.CommandAdd:    h.Add,
+		domain.CommandList:   h.List,
+		domain.CommandRemove: h.Remove,
+		domain.CommandMove:   h.Move,
+		domain.CommandShell:  h.Shell,
 	}
 
 	cmd, ok := commands[code]
@@ -97,6 +101,14 @@ func (h Marks) Add(args Args, _ Kwargs) error {
 
 func (h Marks) List(_ Args, _ Kwargs) error {
 	return h.list.Execute()
+}
+
+func (h Marks) Remove(args Args, _ Kwargs) error {
+	if len(args) < 1 {
+		return fmt.Errorf("one alias required: %w", domain.ErrInvalidAlias)
+	}
+	alias := args[0]
+	return h.remove.Execute(alias)
 }
 
 const movePathWriePathkey = "cwd-file"
