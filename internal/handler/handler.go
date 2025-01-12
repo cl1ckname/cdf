@@ -32,6 +32,13 @@ func NewMarks(
 }
 
 func (h Marks) Permorm(call Call) error {
+	if call.Code != nil {
+		return h.performCommand(*call.Code, call.Args, call.Kwargs)
+	}
+	return h.performFlag(call.Args)
+}
+
+func (h Marks) performCommand(code Code, args Args, kwargs Kwargs) error {
 	commands := cmdmap{
 		CodeAdd:   h.Add,
 		CodeList:  h.List,
@@ -39,11 +46,15 @@ func (h Marks) Permorm(call Call) error {
 		CodeShell: h.Shell,
 	}
 
-	cmd, ok := commands[call.Code]
+	cmd, ok := commands[code]
 	if !ok {
 		return ErrUnknownCommand
 	}
-	return cmd(call.Args, call.Kwargs)
+	return cmd(args, kwargs)
+}
+
+func (h Marks) performFlag(args Args) error {
+	return nil
 }
 
 func (h Marks) Add(args Args, _ Kwargs) error {

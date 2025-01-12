@@ -46,5 +46,5 @@ type Command struct {
 type Call struct {
 	Kwargs Kwargs
 	Args   Args
-	Code   Code
+	Code   *Code
 }
