@@ -29,6 +29,8 @@ func Run(arguments ...string) error {
 		return err
 	}
 
+	helpCommand := commands.NewHelp(os.Stdout)
+
 	marksFabric := fabrics.NewMarks(filesystem.FS)
 	addCommand := commands.NewAdd(storage, marksFabric)
 
@@ -43,6 +45,7 @@ func Run(arguments ...string) error {
 	})
 
 	marksHandler := handler.NewMarks(
+		helpCommand,
 		addCommand,
 		listCommand,
 		moveCommand,
