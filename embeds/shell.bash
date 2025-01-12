@@ -18,8 +18,10 @@ _cdf_move_completion() {
 			# Read the lines from the marks file
 			COMPREPLY=($(compgen -W "$(cat $marks_file | cut -d = -f 1)" -- "${COMP_WORDS[COMP_CWORD]}"))
 		fi
+	elif [[ "${COMP_WORDS[0]}" == "cdf" && "${COMP_WORDS[1]}" == "help" ]]; then
+		COMPREPLY=($(compgen -W "help f add move list shell" -- "${COMP_WORDS[COMP_CWORD]}"))
 	elif [[ "${COMP_WORDS[0]}" == "cdf" ]]; then
-		COMPREPLY=($(compgen -W "add move list shell" -- "${COMP_WORDS[COMP_CWORD]}"))
+		COMPREPLY=($(compgen -W "help add move list shell" -- "${COMP_WORDS[COMP_CWORD]}"))
 	fi
 }
 

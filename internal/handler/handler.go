@@ -7,9 +7,15 @@ import (
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
 )
 
-type cmdmap = map[Code]Handler
+type cmdmap = map[domain.Command]Handler
+
+const (
+	ShortHelp = "h"
+	LongHelp  = "help"
+)
 
 type Marks struct {
+	help  commands.Help
 	add   commands.Add
 	list  commands.List
 	move  commands.Move
@@ -17,6 +23,7 @@ type Marks struct {
 }
 
 func NewMarks(
+	help commands.Help,
 	add commands.Add,
 	list commands.List,
 	move commands.Move,
@@ -24,6 +31,7 @@ func NewMarks(
 ) Marks {
 
 	return Marks{
+		help:  help,
 		add:   add,
 		list:  list,
 		move:  move,
@@ -32,18 +40,49 @@ func NewMarks(
 }
 
 func (h Marks) Permorm(call Call) error {
-	commands := cmdmap{
-		CodeAdd:   h.Add,
-		CodeList:  h.List,
-		CodeMove:  h.Move,
-		CodeShell: h.Shell,
+	if call.Code == nil {
+		return h.performFlag(call.Args)
+	}
+	_, shortHelp := call.Kwargs[ShortHelp]
+	_, longHelp := call.Kwargs[LongHelp]
+	if shortHelp || longHelp {
+		return h.help.Execute(call.Code)
 	}
 
-	cmd, ok := commands[call.Code]
-	if !ok {
-		return ErrUnknownCommand
+	return h.performCommand(*call.Code, call.Args, call.Kwargs)
+}
+
+func (h Marks) performCommand(code domain.Command, args Args, kwargs Kwargs) error {
+	commands := cmdmap{
+		domain.CommandHelp:  h.Help,
+		domain.CommandAdd:   h.Add,
+		domain.CommandList:  h.List,
+		domain.CommandMove:  h.Move,
+		domain.CommandShell: h.Shell,
 	}
-	return cmd(call.Args, call.Kwargs)
+
+	cmd, ok := commands[code]
+	if !ok {
+		return domain.ErrUnknownCommand
+	}
+
+	return cmd(args, kwargs)
+}
+
+func (h Marks) performFlag(args Args) error {
+	return h.Help(args, nil)
+}
+
+func (h Marks) Help(args Args, _ Kwargs) error {
+	if len(args) == 0 {
+		return h.help.Execute(nil)
+	}
+	arg := args[0]
+	cmd, err := domain.ParseCommand(arg)
+	if err != nil {
+		return err
+	}
+	return h.help.Execute(&cmd)
 }
 
 func (h Marks) Add(args Args, _ Kwargs) error {
