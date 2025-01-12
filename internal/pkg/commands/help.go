@@ -2,17 +2,20 @@ package commands
 
 import (
 	"io"
+	"strings"
 
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
 )
 
 type Help struct {
-	out io.Writer
+	out     io.Writer
+	version string
 }
 
-func NewHelp(out io.Writer) Help {
+func NewHelp(version string, out io.Writer) Help {
 	return Help{
-		out: out,
+		out:     out,
+		version: version,
 	}
 }
 
@@ -24,8 +27,7 @@ func (h Help) Execute(code *domain.Command) error {
 }
 
 func (h Help) writeGeneralMessage() error {
-	_, err := h.out.Write([]byte(HelpMessage))
-	return err
+	return h.writeWithHeader(HelpMessage)
 }
 
 func (h Help) writeCommandMessage(cmd domain.Command) error {
@@ -40,7 +42,20 @@ func (h Help) writeCommandMessage(cmd domain.Command) error {
 	if !ok {
 		return domain.ErrUnknownCommand
 	}
-	_, err := h.out.Write([]byte(message))
+	return h.writeWithHeader(message)
+}
+
+func (h Help) writeWithHeader(b string) error {
+	msg := "CDF version " + h.version + "\n\n"
+	if err := h.write(msg); err != nil {
+		return err
+	}
+	return h.write(b)
+}
+
+func (h Help) write(msg string) error {
+	msg = strings.TrimPrefix(msg, "\n")
+	_, err := h.out.Write([]byte(msg))
 	return err
 }
 

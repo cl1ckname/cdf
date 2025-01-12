@@ -16,7 +16,7 @@ import (
 	"github.com/cl1ckname/cdf/internal/store/filesystem"
 )
 
-func Run(arguments ...string) error {
+func Run(version string, arguments ...string) error {
 	defaultFolder, err := os.UserConfigDir()
 	if err != nil {
 		return err
@@ -29,7 +29,7 @@ func Run(arguments ...string) error {
 		return err
 	}
 
-	helpCommand := commands.NewHelp(os.Stdout)
+	helpCommand := commands.NewHelp(version, os.Stdout)
 
 	marksFabric := fabrics.NewMarks(filesystem.FS)
 	addCommand := commands.NewAdd(storage, marksFabric)
