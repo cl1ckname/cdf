@@ -14,7 +14,7 @@ import (
 
 const (
 	MarksFilename = "marks"
-	ReplaceFlag   = os.O_WRONLY
+	ReplaceFlag   = os.O_TRUNC | os.O_WRONLY
 	AppendFlag    = os.O_APPEND | os.O_WRONLY
 	ReadFlag      = os.O_RDONLY
 	Perm          = 0666
@@ -156,6 +156,9 @@ func (f Filestore) Replace(marks []domain.Mark) error {
 		if _, err := dst.WriteString(line); err != nil {
 			return err
 		}
+	}
+	if err := dst.Close(); err != nil {
+		return err
 	}
 
 	return nil

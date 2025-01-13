@@ -1,6 +1,8 @@
 package commands
 
-import "github.com/cl1ckname/cdf/internal/pkg/domain"
+import (
+	"github.com/cl1ckname/cdf/internal/pkg/domain"
+)
 
 type Remover interface {
 	List() ([]domain.Mark, error)
