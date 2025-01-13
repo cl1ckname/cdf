@@ -10,22 +10,27 @@ type Presenter interface {
 	Present(marks []domain.Mark) error
 }
 
-type List struct {
-	lister    Lister
-	presenter Presenter
+type PresenterFabric interface {
+	Build(format domain.Format) Presenter
 }
 
-func NewList(l Lister, p Presenter) List {
+type List struct {
+	lister    Lister
+	presenter PresenterFabric
+}
+
+func NewList(l Lister, f PresenterFabric) List {
 	return List{
 		lister:    l,
-		presenter: p,
+		presenter: f,
 	}
 }
 
-func (l List) Execute() error {
+func (l List) Execute(format domain.Format) error {
 	marks, err := l.lister.List()
 	if err != nil {
 		return err
 	}
-	return l.presenter.Present(marks)
+	presenter := l.presenter.Build(format)
+	return presenter.Present(marks)
 }
