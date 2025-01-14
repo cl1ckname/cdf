@@ -8,6 +8,7 @@ function f
 end
 
 set arguments_file "~/.config/cdf/marks"
+complete -f -c f  -a "(cat $arguments_file | cut -d = -f 1)"
 complete -f -c cdf -n __fish_use_subcommand -a help -d "Get help"
 complete -f -c cdf -n __fish_use_subcommand -a add -d "Add mark"
 complete -f -c cdf -n __fish_use_subcommand -a move -d "Move to mark"
