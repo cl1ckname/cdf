@@ -10,6 +10,7 @@ import (
 	"github.com/cl1ckname/cdf/internal/pkg/commands"
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
 	"github.com/cl1ckname/cdf/internal/pkg/fabrics"
+	"github.com/cl1ckname/cdf/internal/pkg/fabrics/clock"
 	"github.com/cl1ckname/cdf/internal/store"
 	"github.com/cl1ckname/cdf/internal/store/catalog"
 	"github.com/cl1ckname/cdf/internal/store/filesystem"
@@ -30,7 +31,7 @@ func Run(version string, arguments ...string) error {
 
 	helpCommand := commands.NewHelp(version, os.Stdout)
 
-	marksFabric := fabrics.NewMarks(filesystem.FS)
+	marksFabric := fabrics.NewMarks(filesystem.FS, clock.Instance)
 	addCommand := commands.NewAdd(storage, marksFabric)
 
 	listCommand := commands.NewList(storage, fabrics.PresenterInstance)
