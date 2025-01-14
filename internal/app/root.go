@@ -10,7 +10,6 @@ import (
 	"github.com/cl1ckname/cdf/internal/pkg/commands"
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
 	"github.com/cl1ckname/cdf/internal/pkg/fabrics"
-	"github.com/cl1ckname/cdf/internal/pkg/presenters"
 	"github.com/cl1ckname/cdf/internal/store"
 	"github.com/cl1ckname/cdf/internal/store/catalog"
 	"github.com/cl1ckname/cdf/internal/store/filesystem"
@@ -34,8 +33,7 @@ func Run(version string, arguments ...string) error {
 	marksFabric := fabrics.NewMarks(filesystem.FS)
 	addCommand := commands.NewAdd(storage, marksFabric)
 
-	presenter := presenters.NewList(os.Stdout)
-	listCommand := commands.NewList(storage, presenter)
+	listCommand := commands.NewList(storage, fabrics.PresenterInstance)
 
 	removeCommand := commands.NewRemove(storage)
 

@@ -7,6 +7,7 @@ import (
 	"github.com/cl1ckname/cdf/internal/cli"
 	"github.com/cl1ckname/cdf/internal/handler"
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
+	"github.com/cl1ckname/cdf/internal/utils"
 )
 
 func TestCli(t *testing.T) {
@@ -92,10 +93,10 @@ func TestCli(t *testing.T) {
 			if test.error != nil {
 				t.Fatal("expected error")
 			}
-			if expected, actual := test.call.Code, call.Code; !eqPtr(expected, actual) {
+			if expected, actual := test.call.Code, call.Code; !utils.PtrEq(expected, actual) {
 				t.Fatalf("calls code difference: %v vs %v", expected, actual)
 			}
-			if expected, actual := test.call.Args, call.Args; !arrayEq(expected, actual) {
+			if expected, actual := test.call.Args, call.Args; !utils.ArrayEq(expected, actual) {
 				t.Fatalf("args difference: %v vs %v", expected, actual)
 			}
 			if expected, actual := test.call.Kwargs, call.Kwargs; !maps.Equal(expected, actual) {
@@ -103,26 +104,4 @@ func TestCli(t *testing.T) {
 			}
 		})
 	}
-}
-
-func eqPtr[T comparable](a, b *T) bool {
-	if a == nil && b == nil {
-		return true
-	}
-	if a != nil && b != nil {
-		return *a == *b
-	}
-	return false
-}
-
-func arrayEq[T comparable](a, b []T) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i, v := range a {
-		if v != b[i] {
-			return false
-		}
-	}
-	return true
 }

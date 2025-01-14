@@ -12,6 +12,8 @@ type cmdmap = map[domain.Command]Handler
 const (
 	ShortHelp = "h"
 	LongHelp  = "help"
+
+	ListFormat = "format"
 )
 
 type Marks struct {
@@ -99,8 +101,13 @@ func (h Marks) Add(args Args, _ Kwargs) error {
 	return h.add.Execute(alias, path)
 }
 
-func (h Marks) List(_ Args, _ Kwargs) error {
-	return h.list.Execute()
+func (h Marks) List(_ Args, kw Kwargs) error {
+	f := kw[ListFormat]
+	format, ok := domain.ParseFormat(&f)
+	if !ok {
+		return fmt.Errorf("invalid format: %s", f)
+	}
+	return h.list.Execute(format)
 }
 
 func (h Marks) Remove(args Args, _ Kwargs) error {
