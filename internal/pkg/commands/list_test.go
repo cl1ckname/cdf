@@ -30,7 +30,6 @@ func TestList(t *testing.T) {
 	if !utils.ArrayEq(marks, p.marks) {
 		t.Fatalf("presenter expected %v, got %v", marks, p.marks)
 	}
-
 }
 
 type presenter struct {

@@ -34,5 +34,4 @@ func TestJSON(t *testing.T) {
 	if !maps.Equal(exp, res) {
 		t.Fatalf("wrong result, expected %v got %v", exp, res)
 	}
-
 }
