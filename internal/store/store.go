@@ -2,12 +2,12 @@ package store
 
 import (
 	"bufio"
+	"encoding/json"
 	"errors"
 	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
 )
@@ -91,24 +91,28 @@ func (f Filestore) Find(alias string) (domain.Mark, error) {
 	if err != nil {
 		return domain.Mark{}, err
 	}
-	return domain.ParseMark(record)
+
+	return NewMark(*record), nil
 }
 
-func (f Filestore) findRecord(prefix string) (string, error) {
+func (f Filestore) findRecord(prefix string) (*Record, error) {
 	file, err := readOpen(f.marks())
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer file.Close()
 
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		record := scanner.Text()
-		if strings.HasPrefix(record, prefix) {
-			return record, nil
+	scanner := json.NewDecoder(file)
+	var rec Record
+	for scanner.More() {
+		if err := scanner.Decode(&rec); err != nil {
+			return nil, err
+		}
+		if rec.Alias == prefix {
+			return &rec, nil
 		}
 	}
-	return "", domain.ErrNotFound
+	return nil, domain.ErrNotFound
 }
 
 func (f Filestore) List() ([]domain.Mark, error) {
@@ -118,21 +122,18 @@ func (f Filestore) List() ([]domain.Mark, error) {
 	}
 	defer file.Close()
 
-	scanner := bufio.NewScanner(file)
-	var records []domain.Mark
-	for scanner.Scan() {
-		record := scanner.Text()
-		mark, err := domain.ParseMark(record)
-		if err != nil {
+	scanner := json.NewDecoder(file)
+	var marks []domain.Mark
+	var rec Record
+	for scanner.More() {
+		if err := scanner.Decode(&rec); err != nil {
 			return nil, err
 		}
-		records = append(records, mark)
-	}
-	if err := scanner.Err(); err != nil {
-		return nil, err
+		mark := NewMark(rec)
+		marks = append(marks, mark)
 	}
 
-	return records, nil
+	return marks, nil
 }
 
 func (f Filestore) WriteTo(to, value string) error {
@@ -152,8 +153,8 @@ func (f Filestore) Replace(marks []domain.Mark) error {
 	}
 	defer dst.Close()
 	for _, mark := range marks {
-		line := mark.String() + "\n"
-		if _, err := dst.WriteString(line); err != nil {
+		rec := NewRecord(mark)
+		if err := rec.Write(dst); err != nil {
 			return err
 		}
 	}
