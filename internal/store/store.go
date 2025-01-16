@@ -78,9 +78,8 @@ func (f Filestore) Append(mark domain.Mark) error {
 	if err != nil {
 		return err
 	}
-	line := mark.String() + "\n"
-	_, err = file.WriteString(line)
-	if err != nil {
+	rec := NewRecord(mark)
+	if err = rec.Write(file); err != nil {
 		return err
 	}
 	return nil
