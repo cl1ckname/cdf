@@ -37,8 +37,3 @@ func (m Mark) String() string {
 	s, _ := json.Marshal(m)
 	return string(s)
 }
-
-func ParseMark(record string) (m Mark, err error) {
-	err = json.Unmarshal([]byte(record), &m)
-	return
-}
