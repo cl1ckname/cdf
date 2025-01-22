@@ -2,10 +2,6 @@ package commands
 
 import "github.com/cl1ckname/cdf/internal/pkg/domain"
 
-type Lister interface {
-	List() ([]domain.Mark, error)
-}
-
 type Presenter interface {
 	Present(marks []domain.Mark) error
 }
@@ -15,21 +11,25 @@ type PresenterFabric interface {
 }
 
 type List struct {
-	lister    Lister
+	store     Store
 	presenter PresenterFabric
 }
 
-func NewList(l Lister, f PresenterFabric) List {
+func NewList(l Store, f PresenterFabric) List {
 	return List{
-		lister:    l,
+		store:     l,
 		presenter: f,
 	}
 }
 
 func (l List) Execute(format domain.Format) error {
-	marks, err := l.lister.List()
+	coll, err := l.store.Load()
 	if err != nil {
 		return err
+	}
+	var marks []domain.Mark
+	for mark := range coll.Iterate() {
+		marks = append(marks, mark)
 	}
 	presenter := l.presenter.Build(format)
 	return presenter.Present(marks)

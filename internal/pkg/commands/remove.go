@@ -10,34 +10,25 @@ type Remover interface {
 }
 
 type Remove struct {
-	remover Remover
+	remover Store
 }
 
-func NewRemove(remover Remover) Remove {
+func NewRemove(remover Store) Remove {
 	return Remove{
 		remover: remover,
 	}
 }
 
 func (r Remove) Execute(alias string) error {
-	marks, err := r.remover.List()
+	marks, err := r.remover.Load()
 	if err != nil {
 		return err
 	}
-
-	var removed bool
-	for i, mark := range marks {
-		if mark.Alias == alias {
-			removed = true
-			marks = remove(marks, i)
-			break
-		}
-	}
+	removed := marks.Remove(alias)
 	if !removed {
 		return domain.ErrNotFound
 	}
-
-	return r.remover.Replace(marks)
+	return nil
 }
 
 func remove[T any](arr []T, at int) []T {
