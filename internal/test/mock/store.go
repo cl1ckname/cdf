@@ -3,15 +3,15 @@ package mock
 import "github.com/cl1ckname/cdf/internal/pkg/domain"
 
 type Store struct {
-	oldData domain.Collection
-	newData domain.Collection
+	OldData domain.Collection
+	NewData domain.Collection
 }
 
 func (s *Store) Load() (domain.Collection, error) {
-	return s.oldData, nil
+	return s.OldData, nil
 }
 
 func (s *Store) Save(c domain.Collection) error {
-	s.newData = c
+	s.NewData = c
 	return nil
 }

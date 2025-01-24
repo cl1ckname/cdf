@@ -5,8 +5,10 @@ import (
 	"maps"
 	"testing"
 
+	"github.com/cl1ckname/cdf/internal/collection/dict"
 	"github.com/cl1ckname/cdf/internal/pkg/commands"
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
+	"github.com/cl1ckname/cdf/internal/test/mock"
 )
 
 var stub = struct{}{}
@@ -14,7 +16,7 @@ var stub = struct{}{}
 func TestRemove(t *testing.T) {
 	tests := []struct {
 		name string
-		arr  []domain.Mark
+		arr  map[string]domain.Mark
 		rest map[string]struct{}
 		arg  string
 	}{
@@ -46,15 +48,19 @@ func TestRemove(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			r := new(remover)
-			r.marks = test.arr
-			cmd := commands.NewRemove(r)
+			st := new(mock.Store)
+			st.OldData = dict.Dict(test.arr)
+			cmd := commands.NewRemove(st)
 			err := cmd.Execute(test.arg)
 			if err != nil {
 				t.Fatalf("unexpected error: %v\n", err)
 			}
+
+			if st.NewData == nil {
+				t.Fatalf("no data saved")
+			}
 			rest := map[string]struct{}{}
-			for _, mark := range r.res {
+			for mark := range st.NewData.Iterate() {
 				rest[mark.Alias] = stub
 			}
 			if !maps.Equal(test.rest, rest) {
@@ -65,8 +71,9 @@ func TestRemove(t *testing.T) {
 }
 
 func TestNotFount(t *testing.T) {
-	r := new(remover)
-	cmd := commands.NewRemove(r)
+	st := new(mock.Store)
+	st.OldData = dict.Dict{}
+	cmd := commands.NewRemove(st)
 	err := cmd.Execute("b")
 	if err == nil {
 		t.Fatalf("expected error, got nil\n")
@@ -76,10 +83,10 @@ func TestNotFount(t *testing.T) {
 	}
 }
 
-func genset(str ...string) []domain.Mark {
-	mrks := make([]domain.Mark, len(str))
-	for i, alias := range str {
-		mrks[i] = domain.Mark{Alias: alias}
+func genset(str ...string) map[string]domain.Mark {
+	mrks := make(map[string]domain.Mark, len(str))
+	for _, alias := range str {
+		mrks[alias] = domain.Mark{Alias: alias}
 	}
 	return mrks
 }
@@ -90,18 +97,4 @@ func genrest(str ...string) map[string]struct{} {
 		mrks[alias] = stub
 	}
 	return mrks
-}
-
-type remover struct {
-	marks []domain.Mark
-	res   []domain.Mark
-}
-
-func (r *remover) List() ([]domain.Mark, error) {
-	return r.marks, nil
-}
-
-func (r *remover) Replace(marks []domain.Mark) error {
-	r.res = marks
-	return nil
 }

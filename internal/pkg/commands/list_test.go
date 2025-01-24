@@ -3,8 +3,10 @@ package commands_test
 import (
 	"testing"
 
+	"github.com/cl1ckname/cdf/internal/collection/dict"
 	"github.com/cl1ckname/cdf/internal/pkg/commands"
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
+	"github.com/cl1ckname/cdf/internal/test/mock"
 	"github.com/cl1ckname/cdf/internal/utils"
 )
 
@@ -12,12 +14,18 @@ func TestList(t *testing.T) {
 	p := new(presenter)
 	fab := new(presenterFabric)
 	fab.presenter = p
-	l := new(lister)
-	cmd := commands.NewList(l, fab)
+
+	st := new(mock.Store)
+	dt := dict.Dict{}
+	st.OldData = dt
+
+	cmd := commands.NewList(st, fab)
 	marks := []domain.Mark{
 		{Alias: "h", Path: "/home/username"},
 	}
-	l.marks = marks
+	for _, mark := range marks {
+		st.OldData.Set(mark)
+	}
 
 	f := domain.JSONFormat
 	err := cmd.Execute(f)
@@ -49,12 +57,4 @@ type presenterFabric struct {
 func (p *presenterFabric) Build(f domain.Format) commands.Presenter {
 	p.format = f
 	return p.presenter
-}
-
-type lister struct {
-	marks []domain.Mark
-}
-
-func (l lister) List() ([]domain.Mark, error) {
-	return l.marks, nil
 }

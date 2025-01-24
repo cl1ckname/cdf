@@ -28,10 +28,5 @@ func (r Remove) Execute(alias string) error {
 	if !removed {
 		return domain.ErrNotFound
 	}
-	return nil
-}
-
-func remove[T any](arr []T, at int) []T {
-	arr[at] = arr[len(arr)-1]
-	return arr[:len(arr)-1]
+	return r.remover.Save(marks)
 }

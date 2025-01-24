@@ -4,8 +4,10 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/cl1ckname/cdf/internal/collection/dict"
 	"github.com/cl1ckname/cdf/internal/pkg/commands"
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
+	"github.com/cl1ckname/cdf/internal/test/mock"
 )
 
 func TestAddSuccess(t *testing.T) {
@@ -15,22 +17,29 @@ func TestAddSuccess(t *testing.T) {
 		Path:  path,
 	}
 
-	ap := new(appender)
-	ap.findErr = domain.ErrNotFound
-
+	store := new(mock.Store)
+	store.OldData = dict.Dict{}
 	f := new(fabric)
 	f.mark = &newMark
 
-	cmd := commands.NewAdd(ap, f)
+	cmd := commands.NewAdd(store, f)
 
 	err := cmd.Execute(alias, path)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if aps := len(ap.appends); aps != 1 {
-		t.Fatalf("should be only one append, got %d", aps)
+	got, ok := store.NewData.Get(alias)
+	if !ok {
+		t.Fatalf("mark %s not set", alias)
 	}
-	got := ap.appends[0]
+	var counter int
+	for range store.NewData.Iterate() {
+		counter++
+	}
+	if counter != 1 {
+		t.Fatalf("too much adds: %d", counter)
+	}
+
 	if got != newMark {
 		t.Fatalf("wrong saved mark: %v vs %v", got, newMark)
 	}
@@ -43,13 +52,15 @@ func TestAddAlreadyExists(t *testing.T) {
 		Path:  path,
 	}
 
-	ap := new(appender)
-	ap.find = newMark
+	st := new(mock.Store)
+	dt := dict.Dict{}
+	dt.Set(newMark)
+	st.OldData = dt
 
 	f := new(fabric)
 	f.mark = &newMark
 
-	cmd := commands.NewAdd(ap, f)
+	cmd := commands.NewAdd(st, f)
 
 	err := cmd.Execute(alias, path)
 	if err == nil {
@@ -66,19 +77,4 @@ type fabric struct {
 
 func (f fabric) Build(_, _ string) (*domain.Mark, error) {
 	return f.mark, nil
-}
-
-type appender struct {
-	appends []domain.Mark
-	find    domain.Mark
-	findErr error
-}
-
-func (a *appender) Append(rec domain.Mark) error {
-	a.appends = append(a.appends, rec)
-	return nil
-}
-
-func (a *appender) Find(alias string) (domain.Mark, error) {
-	return a.find, a.findErr
 }
