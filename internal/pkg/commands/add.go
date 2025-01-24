@@ -1,27 +1,21 @@
 package commands
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
 )
-
-type Appender interface {
-	Append(record domain.Mark) error
-	Find(alias string) (domain.Mark, error)
-}
 
 type MarkFabric interface {
 	Build(alias, path string) (*domain.Mark, error)
 }
 
 type Add struct {
-	appender Appender
+	appender Store
 	builder  MarkFabric
 }
 
-func NewAdd(a Appender, f MarkFabric) Add {
+func NewAdd(a Store, f MarkFabric) Add {
 	return Add{
 		appender: a,
 		builder:  f,
@@ -34,13 +28,16 @@ func (c Add) Execute(alias, path string) error {
 		return err
 	}
 
-	rec, err := c.appender.Find(mark.Alias)
-	if err == nil {
-		return fmt.Errorf("this alias already in use (%s): %w", rec, domain.ErrAlreadyExists)
-	}
-	if !errors.Is(err, domain.ErrNotFound) {
-		return fmt.Errorf("find error: %w", err)
+	col, err := c.appender.Load()
+	if err != nil {
+		return err
 	}
 
-	return c.appender.Append(*mark)
+	rec, exists := col.Get(mark.Alias)
+	if exists {
+		return fmt.Errorf("this alias already in use (%s): %w", rec, domain.ErrAlreadyExists)
+	}
+	col.Set(*mark)
+
+	return c.appender.Save(col)
 }

@@ -37,3 +37,10 @@ func (m Mark) String() string {
 	s, _ := json.Marshal(m)
 	return string(s)
 }
+
+type Collection interface {
+	Get(alias string) (Mark, bool)
+	Set(m Mark)
+	Iterate() <-chan Mark
+	Remove(alias string) bool
+}

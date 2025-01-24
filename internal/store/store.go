@@ -2,13 +2,13 @@ package store
 
 import (
 	"bufio"
-	"encoding/json"
 	"errors"
 	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
 
+	"github.com/cl1ckname/cdf/internal/collection/dict"
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
 )
 
@@ -52,87 +52,27 @@ func Init(dir Catalog) error {
 	return nil
 }
 
-func (f Filestore) Load() ([]string, error) {
+func (f Filestore) Load() (domain.Collection, error) {
 	file, err := readOpen(f.marks())
 	if err != nil {
 		return nil, err
 	}
 	reader := bufio.NewReader(file)
-	var marks []string
+	marks := make(map[string]domain.Mark)
 	for {
-		path, err := reader.ReadString('\n')
-		if err == nil {
-			marks = append(marks, path)
-			continue
+		line, err := reader.ReadBytes('\n')
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				break
+			}
 		}
-		if errors.Is(err, io.EOF) {
-			break
-		}
-		return nil, err
-	}
-	return marks, nil
-}
-
-func (f Filestore) Append(mark domain.Mark) error {
-	file, err := appendOpen(f.marks())
-	if err != nil {
-		return err
-	}
-	rec := NewRecord(mark)
-	if err = rec.Write(file); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (f Filestore) Find(alias string) (domain.Mark, error) {
-	record, err := f.findRecord(alias)
-	if err != nil {
-		return domain.Mark{}, err
-	}
-
-	return NewMark(*record), nil
-}
-
-func (f Filestore) findRecord(prefix string) (*Record, error) {
-	file, err := readOpen(f.marks())
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	scanner := json.NewDecoder(file)
-	var rec Record
-	for scanner.More() {
-		if err := scanner.Decode(&rec); err != nil {
+		rec, err := ParseRecord(line)
+		if err != nil {
 			return nil, err
 		}
-		if rec.Alias == prefix {
-			return &rec, nil
-		}
+		marks[rec.Alias] = NewMark(rec)
 	}
-	return nil, domain.ErrNotFound
-}
-
-func (f Filestore) List() ([]domain.Mark, error) {
-	file, err := readOpen(f.marks())
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	scanner := json.NewDecoder(file)
-	var marks []domain.Mark
-	var rec Record
-	for scanner.More() {
-		if err := scanner.Decode(&rec); err != nil {
-			return nil, err
-		}
-		mark := NewMark(rec)
-		marks = append(marks, mark)
-	}
-
-	return marks, nil
+	return dict.Dict(marks), nil
 }
 
 func (f Filestore) WriteTo(to, value string) error {
@@ -145,13 +85,13 @@ func (f Filestore) WriteTo(to, value string) error {
 	return err
 }
 
-func (f Filestore) Replace(marks []domain.Mark) error {
+func (f Filestore) Save(marks domain.Collection) error {
 	dst, err := replaceOpen(f.marks())
 	if err != nil {
 		return err
 	}
 	defer dst.Close()
-	for _, mark := range marks {
+	for mark := range marks.Iterate() {
 		rec := NewRecord(mark)
 		if err := rec.Write(dst); err != nil {
 			return err

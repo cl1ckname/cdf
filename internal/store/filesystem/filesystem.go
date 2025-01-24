@@ -28,4 +28,8 @@ func (f Filesystem) Abs(name string) (string, error) {
 	return filepath.Abs(name)
 }
 
+func (f Filesystem) OpenFile(path string, flag int, perm fs.FileMode) (*os.File, error) {
+	return os.OpenFile(path, flag, perm)
+}
+
 var FS Filesystem

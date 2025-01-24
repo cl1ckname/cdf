@@ -14,6 +14,7 @@ import (
 	"github.com/cl1ckname/cdf/internal/store"
 	"github.com/cl1ckname/cdf/internal/store/catalog"
 	"github.com/cl1ckname/cdf/internal/store/filesystem"
+	"github.com/cl1ckname/cdf/internal/store/mover"
 )
 
 func Run(version string, arguments ...string) error {
@@ -38,7 +39,8 @@ func Run(version string, arguments ...string) error {
 
 	removeCommand := commands.NewRemove(storage)
 
-	moveCommand := commands.NewMove(storage)
+	mvr := mover.NewMover(filesystem.FS)
+	moveCommand := commands.NewMove(storage, mvr)
 
 	shellCommand := commands.NewShell(os.Stdout, commands.Wraps{
 		domain.FishShell: embeds.FishShell,

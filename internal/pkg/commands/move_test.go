@@ -3,20 +3,26 @@ package commands_test
 import (
 	"testing"
 
+	"github.com/cl1ckname/cdf/internal/collection/dict"
 	"github.com/cl1ckname/cdf/internal/pkg/commands"
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
+	"github.com/cl1ckname/cdf/internal/test/mock"
 )
 
 func TestMove(t *testing.T) {
 	t.Parallel()
 
-	m := new(mover)
-	cmd := commands.NewMove(m)
 	mark := domain.Mark{
 		Alias: "home",
 		Path:  "/home/user",
 	}
-	m.mark = mark
+	m := new(mover)
+	d := dict.Dict{}
+	d.Set(mark)
+	store := new(mock.Store)
+	store.OldData = d
+
+	cmd := commands.NewMove(store, m)
 	to := "/tmp/cdf-2112"
 
 	got, err := cmd.Execute(mark.Alias, to)
@@ -36,12 +42,7 @@ func TestMove(t *testing.T) {
 }
 
 type mover struct {
-	mark   domain.Mark
 	writes []string
-}
-
-func (m *mover) Find(_ string) (domain.Mark, error) {
-	return m.mark, nil
 }
 
 func (m *mover) WriteTo(file, value string) error {
