@@ -9,9 +9,11 @@ import (
 )
 
 type Record struct {
-	Alias   string `json:"alias"`
-	Path    string `json:"path"`
-	Created int64  `json:"created"`
+	Alias     string `json:"alias"`
+	Path      string `json:"path"`
+	TimesUsed int    `json:"timesUsed"`
+	LastUsed  int64  `json:"lastUsed"`
+	Created   int64  `json:"created"`
 }
 
 func (r Record) Write(w io.Writer) error {
@@ -26,17 +28,21 @@ func (r Record) Write(w io.Writer) error {
 
 func NewRecord(m domain.Mark) Record {
 	return Record{
-		Alias:   m.Alias,
-		Path:    m.Path,
-		Created: m.Created.Unix(),
+		Alias:     m.Alias,
+		Path:      m.Path,
+		TimesUsed: m.TimesUsed,
+		LastUsed:  m.LastUsed.Unix(),
+		Created:   m.Created.Unix(),
 	}
 }
 
 func NewMark(r Record) domain.Mark {
 	return domain.Mark{
-		Alias:   r.Alias,
-		Path:    r.Path,
-		Created: time.Unix(r.Created, 0),
+		Alias:     r.Alias,
+		Path:      r.Path,
+		TimesUsed: r.TimesUsed,
+		Created:   time.Unix(r.Created, 0),
+		LastUsed:  time.Unix(r.LastUsed, 0),
 	}
 }
 

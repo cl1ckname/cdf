@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"regexp"
@@ -18,9 +17,11 @@ var ErrAlreadyExists = errors.New("bookmark with this alias already exist")
 var ErrNotFound = errors.New("not found")
 
 type Mark struct {
-	Alias   string    `json:"alias"`
-	Path    string    `json:"path"`
-	Created time.Time `json:"created"`
+	Alias     string
+	Path      string
+	TimesUsed int
+	Created   time.Time
+	LastUsed  time.Time
 }
 
 func NewMark(alias, path string, now time.Time) (m Mark, err error) {
@@ -31,11 +32,6 @@ func NewMark(alias, path string, now time.Time) (m Mark, err error) {
 	m.Path = path
 	m.Created = now
 	return
-}
-
-func (m Mark) String() string {
-	s, _ := json.Marshal(m)
-	return string(s)
 }
 
 type Collection interface {
