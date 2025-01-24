@@ -2,7 +2,6 @@ package store
 
 import (
 	"bufio"
-	"encoding/json"
 	"errors"
 	"io"
 	"io/fs"
@@ -60,7 +59,6 @@ func (f Filestore) Load() (domain.Collection, error) {
 	}
 	reader := bufio.NewReader(file)
 	marks := make(map[string]domain.Mark)
-	var mark domain.Mark
 	for {
 		line, err := reader.ReadBytes('\n')
 		if err != nil {
@@ -68,10 +66,11 @@ func (f Filestore) Load() (domain.Collection, error) {
 				break
 			}
 		}
-		if err := json.Unmarshal(line, &mark); err != nil {
+		rec, err := ParseRecord(line)
+		if err != nil {
 			return nil, err
 		}
-		marks[mark.Alias] = mark
+		marks[rec.Alias] = NewMark(rec)
 	}
 	return dict.Dict(marks), nil
 }

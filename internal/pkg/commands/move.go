@@ -28,7 +28,7 @@ func (c Move) Execute(alias string, resTo string) (string, error) {
 		return "", err
 	}
 	mark, ok := coll.Get(alias)
-	if ok {
+	if !ok {
 		return "", fmt.Errorf("mark %s: %w", alias, domain.ErrNotFound)
 	}
 	return mark.Path, c.mover.WriteTo(resTo, mark.Path)
