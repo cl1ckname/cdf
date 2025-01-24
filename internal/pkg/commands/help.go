@@ -34,7 +34,8 @@ func (h Help) writeCommandMessage(cmd domain.Command) error {
 	descriptions := map[domain.Command]string{
 		domain.Command("f"):  HelpMessageF,
 		domain.CommandAdd:    HelpMessageAdd,
-		domain.CommandHelp:   HelpMessageList,
+		domain.CommandList:   HelpMessageList,
+		domain.CommandHelp:   HelpMessage,
 		domain.CommandRemove: HelpMessageRemove,
 		domain.CommandShell:  HelpMessageShell,
 		domain.CommandMove:   HelpMessageMove,
@@ -106,12 +107,29 @@ examples:
 `
 
 const HelpMessageList = `
-usage: cdf list
+usage: cdf list [--format]
 
-summary: prints list of added marks
+summary: prints list of added marks.
+
+options:
+	--format=<FORMAT>
+		Determines the form of outputs. Should be one of the next valus:
+			
+			• default
+				The output is TAB separated alias - value pairs.
+
+			• json
+				The output will be a single JSON object where alias are keys and marks are values.
+	
+			• alias
+				The output will contain only list of all aliases,
+
+		Otherwise it will be default.
 
 examples:
 	cdf list
+
+	cdf list --format=json
 `
 
 const HelpMessageF = `
