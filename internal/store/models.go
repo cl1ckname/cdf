@@ -12,7 +12,7 @@ type Record struct {
 	Alias     string `json:"alias"`
 	Path      string `json:"path"`
 	TimesUsed int    `json:"timesUsed"`
-	LastUsed  int64  `json:"lastUsed"`
+	LastUsed  int64  `json:"lastUsed,omitempty"`
 	Created   int64  `json:"created"`
 }
 

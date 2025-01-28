@@ -6,11 +6,11 @@ import (
 
 	"github.com/cl1ckname/cdf/embeds"
 	"github.com/cl1ckname/cdf/internal/cli"
+	"github.com/cl1ckname/cdf/internal/clock"
 	"github.com/cl1ckname/cdf/internal/handler"
 	"github.com/cl1ckname/cdf/internal/pkg/commands"
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
 	"github.com/cl1ckname/cdf/internal/pkg/fabrics"
-	"github.com/cl1ckname/cdf/internal/pkg/fabrics/clock"
 	"github.com/cl1ckname/cdf/internal/store"
 	"github.com/cl1ckname/cdf/internal/store/catalog"
 	"github.com/cl1ckname/cdf/internal/store/filesystem"
@@ -32,7 +32,7 @@ func Run(version string, arguments ...string) error {
 
 	helpCommand := commands.NewHelp(version, os.Stdout)
 
-	marksFabric := fabrics.NewMarks(filesystem.FS, clock.Instance)
+	marksFabric := fabrics.NewMarks(filesystem.FS, clock.Time)
 	addCommand := commands.NewAdd(storage, marksFabric)
 
 	listCommand := commands.NewList(storage, fabrics.PresenterInstance)
@@ -40,7 +40,7 @@ func Run(version string, arguments ...string) error {
 	removeCommand := commands.NewRemove(storage)
 
 	mvr := mover.NewMover(filesystem.FS)
-	moveCommand := commands.NewMove(storage, mvr)
+	moveCommand := commands.NewMove(storage, mvr, clock.Time)
 
 	shellCommand := commands.NewShell(os.Stdout, commands.Wraps{
 		domain.FishShell: embeds.FishShell,

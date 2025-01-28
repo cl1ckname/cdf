@@ -34,6 +34,11 @@ func NewMark(alias, path string, now time.Time) (m Mark, err error) {
 	return
 }
 
+func (m *Mark) Use(now time.Time) {
+	m.LastUsed = now
+	m.TimesUsed++
+}
+
 type Collection interface {
 	Get(alias string) (Mark, bool)
 	Set(m Mark)
