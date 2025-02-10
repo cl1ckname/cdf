@@ -4,20 +4,22 @@ import (
 	"io"
 	"strconv"
 	"strings"
+	"text/tabwriter"
 
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
 )
 
-const layout = "15:04:05 2006-01-02"
+const layout = "15:04 2006-01-02"
 
 type List struct {
-	out  io.Writer
+	out  *tabwriter.Writer
 	opts Opts
 }
 
 func NewList(out io.Writer, opts Opts) List {
+	writer := tabwriter.NewWriter(out, 0, 0, 2, ' ', 0)
 	return List{
-		out:  out,
+		out:  writer,
 		opts: opts,
 	}
 }
@@ -33,7 +35,7 @@ func (l List) Present(marks []domain.Mark) error {
 			return err
 		}
 	}
-	return nil
+	return l.out.Flush()
 }
 
 func (l List) printHeader(long bool) error {
