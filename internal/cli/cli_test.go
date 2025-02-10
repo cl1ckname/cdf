@@ -20,10 +20,11 @@ func TestCli(t *testing.T) {
 	kwarg := "--tmp=/tmp/cdf-2127"
 
 	tests := []struct {
-		name  string
-		args  []string
-		call  handler.Call
-		error error
+		name       string
+		args       []string
+		call       handler.Call
+		parseError error
+		callError  error
 	}{
 		{
 			name: "only cmd",
@@ -31,18 +32,18 @@ func TestCli(t *testing.T) {
 			call: handler.Call{
 				Code: &code,
 			},
-			error: nil,
+			parseError: nil,
 		},
 		{
-			name:  "no program",
-			call:  handler.Call{},
-			error: cli.ErrInvalidArgs,
+			name:       "no program",
+			call:       handler.Call{},
+			parseError: cli.ErrInvalidArgs,
 		},
 		{
-			name:  "no command",
-			args:  []string{program},
-			call:  handler.Call{},
-			error: nil,
+			name:       "no command",
+			args:       []string{program},
+			call:       handler.Call{},
+			parseError: nil,
 		},
 		{
 			name: "one argument",
@@ -51,7 +52,7 @@ func TestCli(t *testing.T) {
 				Code: &code,
 				Args: []string{path},
 			},
-			error: nil,
+			parseError: nil,
 		},
 		{
 			name: "one kwarg",
@@ -83,14 +84,21 @@ func TestCli(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			call, err := cli.ParseCall(test.args)
+			args, kwargs, err := cli.ParseFlags(test.args)
 			if err != nil {
-				if test.error == nil {
+				if test.parseError == nil {
 					t.Fatalf("unexpected error: %v\n", err)
 				}
 				return
 			}
-			if test.error != nil {
+			call, err := cli.NewCall(args, kwargs)
+			if err != nil {
+				if test.callError == nil {
+					t.Fatalf("unexpected error: %v\n", err)
+				}
+				return
+			}
+			if test.parseError != nil {
 				t.Fatal("expected error")
 			}
 			if expected, actual := test.call.Code, call.Code; !utils.PtrEq(expected, actual) {
