@@ -2,35 +2,80 @@ package presenters
 
 import (
 	"io"
+	"strconv"
+	"strings"
+	"text/tabwriter"
 
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
 )
 
+const layout = "15:04 2006-01-02"
+
 type List struct {
-	out io.Writer
+	out  *tabwriter.Writer
+	opts Opts
 }
 
-func NewList(out io.Writer) List {
+func NewList(out io.Writer, opts Opts) List {
+	writer := tabwriter.NewWriter(out, 0, 0, 2, ' ', 0)
 	return List{
-		out: out,
+		out:  writer,
+		opts: opts,
 	}
 }
 
 func (l List) Present(marks []domain.Mark) error {
+	long := longOpt(l.opts)
+	err := l.printHeader(long)
+	if err != nil {
+		return err
+	}
 	for _, mark := range marks {
-		if err := l.print(mark); err != nil {
+		if err := l.print(mark, long); err != nil {
 			return err
 		}
 	}
-	return nil
+	return l.out.Flush()
 }
 
-func (l List) print(m domain.Mark) error {
-	line := formatMark(m)
-	_, err := l.out.Write([]byte(line))
+func longOpt(opts Opts) bool {
+	_, long := opts["long"]
+	_, short := opts["l"]
+	return short || long
+}
+
+func (l List) printHeader(long bool) error {
+	if !long {
+		return nil
+	}
+	headerLine := header()
+	_, err := l.out.Write(append([]byte(headerLine), '\n'))
 	return err
 }
 
-func formatMark(m domain.Mark) string {
-	return m.Alias + "\t" + m.Path + "\n"
+func (l List) print(m domain.Mark, long bool) error {
+	line := formatMark(m, long)
+	_, err := l.out.Write(append([]byte(line), '\n'))
+	return err
+}
+
+func formatMark(m domain.Mark, long bool) string {
+	fields := fieldSet(m, long)
+	return strings.Join(fields, "\t")
+}
+
+func header() string {
+	columns := []string{"alias", "path", "used", "last usage", "created"}
+	return strings.Join(columns, "\t")
+}
+
+func fieldSet(m domain.Mark, long bool) []string {
+	elems := []string{m.Alias, m.Path}
+	if !long {
+		return elems
+	}
+	count := strconv.Itoa(m.TimesUsed)
+	last := m.LastUsed.Format(layout)
+	created := m.Created.Format(layout)
+	return append(elems, count, last, created)
 }

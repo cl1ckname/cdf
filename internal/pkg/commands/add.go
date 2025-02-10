@@ -35,7 +35,7 @@ func (c Add) Execute(alias, path string) error {
 
 	rec, exists := col.Get(mark.Alias)
 	if exists {
-		return fmt.Errorf("this alias already in use (%s): %w", rec, domain.ErrAlreadyExists)
+		return fmt.Errorf("this alias already in use (%s): %w", rec.Alias, domain.ErrAlreadyExists)
 	}
 	col.Set(*mark)
 
