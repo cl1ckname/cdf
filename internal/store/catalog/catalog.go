@@ -8,83 +8,68 @@ import (
 	"path/filepath"
 )
 
-type FS interface {
-	fs.StatFS
-	Mkdir(name string, perm fs.FileMode) error
-	Touch(name string, perm fs.FileMode) error
-}
-
-type Catalog struct {
-	sys   FS
-	root  string
-	marks string
-}
-
 const (
 	MarksFilename = "marks"
 	Perm          = 0755
 )
 
-func New(root string, sys FS) Catalog {
-	marks := filepath.Join(root, MarksFilename)
-	return Catalog{
-		root:  root,
-		marks: marks,
-		sys:   sys,
-	}
+type FS interface {
+	fs.StatFS
+	Touch(name string, perm fs.FileMode) error
+	Mkdir(name string, perm fs.FileMode) error
 }
 
-func (c Catalog) Marks() string {
-	return c.marks
-}
-
-func (c Catalog) Root() string {
-	return c.root
-}
-
-func (c Catalog) EnsureRoot() error {
-	exists, err := c.rootExists()
+func EnsureFile(filepath string, fs FS) error {
+	exists, err := marksExists(filepath, fs)
 	if err != nil {
 		return err
 	}
 	if exists {
 		return nil
 	}
-	return c.sys.Mkdir(c.root, Perm)
+	return fs.Touch(filepath, Perm)
 }
 
-func (c Catalog) rootExists() (bool, error) {
-	info, err := fs.Stat(c.sys, c.root)
+func InitInFolder(path string, fs FS) (string, error) {
+	if err := ensureRoot(fs, path); err != nil {
+		return "", err
+	}
+	marksFilePath := filepath.Join(path, MarksFilename)
+	if err := EnsureFile(marksFilePath, fs); err != nil {
+		return "", err
+	}
+	return marksFilePath, nil
+}
+
+func ensureRoot(sys FS, root string) error {
+	exists, err := rootExists(sys, root)
+	if err != nil {
+		return err
+	}
+	if exists {
+		return nil
+	}
+	return sys.Mkdir(root, Perm)
+}
+
+func rootExists(sys FS, root string) (bool, error) {
+	info, err := fs.Stat(sys, root)
 	if err != nil {
 		return false, assertNotFound(err)
 	}
 	if !info.IsDir() {
-		return false, fmt.Errorf("%s should be a dir, file found", c.root)
+		return false, fmt.Errorf("%s should be a dir, file found", root)
 	}
 	return true, nil
 }
 
-func (c Catalog) EnsureMarks() error {
-	exists, err := c.marksExists()
-	if err != nil {
-		return err
-	}
-	if exists {
-		return nil
-	}
-	return c.sys.Touch(c.marks, Perm)
-}
-
-func (c Catalog) marksExists() (bool, error) {
-	if exists, err := c.rootExists(); err != nil || !exists {
-		return exists, err
-	}
-	info, err := fs.Stat(c.sys, c.marks)
+func marksExists(filepath string, fs FS) (bool, error) {
+	info, err := fs.Stat(filepath)
 	if err != nil {
 		return false, assertNotFound(err)
 	}
 	if info.IsDir() {
-		return false, fmt.Errorf("%s should be a file, dir found", c.marks)
+		return false, fmt.Errorf("%s should be a file, dir found", filepath)
 	}
 	return true, nil
 }

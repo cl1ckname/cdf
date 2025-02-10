@@ -11,11 +11,7 @@ import (
 
 var ErrInvalidArgs = errors.New("invalid args")
 
-func ParseCall(arguments []string) (*handler.Call, error) {
-	args, kwargs, err := ParseFlags(arguments)
-	if err != nil {
-		return nil, err
-	}
+func NewCall(args handler.Args, kwargs handler.Kwargs) (*handler.Call, error) {
 	cmd, err := parseCommand(args)
 	if err != nil {
 		return nil, err
