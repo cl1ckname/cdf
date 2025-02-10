@@ -62,7 +62,7 @@ func (h Help) write(msg string) error {
 }
 
 const HelpMessage = `
-usage: [cdf | f] [-h | --help] <command> [<args>]
+usage: [cdf | f] [-h | --help] [--usefile] <command> [<args>]
 
 To get information about specific command use
 
@@ -85,6 +85,10 @@ manage bookmarks:
 service commands for f usage:
 	shell   Prints shell commands for f command using and autocomplitions
 	move    Provides path of alias to special file
+
+options:
+	--usefile=<filepath>
+		Customise path to file with marks saves. Creates it if not exists. Default is ~/.config/cdf.
 `
 
 const HelpMessageAdd = `

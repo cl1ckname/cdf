@@ -17,14 +17,15 @@ import (
 	"github.com/cl1ckname/cdf/internal/store/mover"
 )
 
+const MarkFilepathArg = "usefile"
+
 func Run(version string, arguments ...string) error {
-	defaultFolder, err := os.UserConfigDir()
+	args, kwargs, err := cli.ParseFlags(arguments)
 	if err != nil {
 		return err
 	}
-	defaultFolder = filepath.Join(defaultFolder, "cdf")
 
-	filepath, err := catalog.InitInFolder(defaultFolder, filesystem.FS)
+	filepath, err := marksFile(filesystem.FS, kwargs)
 	if err != nil {
 		return err
 	}
@@ -56,7 +57,7 @@ func Run(version string, arguments ...string) error {
 		shellCommand,
 	)
 
-	call, err := cli.ParseCall(arguments)
+	call, err := cli.NewCall(args, kwargs)
 	if err != nil {
 		return err
 	}
@@ -64,4 +65,26 @@ func Run(version string, arguments ...string) error {
 		return err
 	}
 	return nil
+}
+
+func marksFile(fs catalog.FS, kwargs handler.Kwargs) (string, error) {
+	path, ok := kwargs[MarkFilepathArg]
+	if ok {
+		return path, catalog.EnsureFile(path, fs)
+	}
+	return defaultMarksPath(fs)
+}
+
+func defaultMarksPath(fs catalog.FS) (string, error) {
+	defaultFolder, err := os.UserConfigDir()
+	if err != nil {
+		return "", err
+	}
+	defaultFolder = filepath.Join(defaultFolder, "cdf")
+
+	filepath, err := catalog.InitInFolder(defaultFolder, fs)
+	if err != nil {
+		return "", err
+	}
+	return filepath, nil
 }
