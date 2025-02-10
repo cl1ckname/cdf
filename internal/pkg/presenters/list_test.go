@@ -11,7 +11,7 @@ import (
 func TestList(t *testing.T) {
 	expected := "home\t/home/user\nsystemd\t/etc/systemd\n"
 	buf := bytes.NewBufferString("")
-	l := presenters.NewList(buf)
+	l := presenters.NewList(buf, presenters.Opts{})
 	marks := []domain.Mark{
 		{
 			Alias: "home",

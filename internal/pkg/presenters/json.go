@@ -11,7 +11,7 @@ type JSON struct {
 	out io.Writer
 }
 
-func NewJSON(out io.Writer) JSON {
+func NewJSON(out io.Writer, _ Opts) JSON {
 	return JSON{out: out}
 }
 

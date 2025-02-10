@@ -10,7 +10,7 @@ type Alias struct {
 	out io.Writer
 }
 
-func NewAlias(out io.Writer) Alias {
+func NewAlias(out io.Writer, _ Opts) Alias {
 	return Alias{out: out}
 }
 

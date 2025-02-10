@@ -107,7 +107,7 @@ func (h Marks) List(_ Args, kw Kwargs) error {
 	if !ok {
 		return fmt.Errorf("invalid format: %s", f)
 	}
-	return h.list.Execute(format)
+	return h.list.Execute(format, kw)
 }
 
 func (h Marks) Remove(args Args, _ Kwargs) error {

@@ -12,7 +12,7 @@ import (
 
 func TestJSON(t *testing.T) {
 	wr := bytes.NewBuffer(nil)
-	js := presenters.NewJSON(wr)
+	js := presenters.NewJSON(wr, nil)
 	marks := []domain.Mark{
 		{Alias: "h", Path: "/home/username"},
 		{Alias: "prj", Path: "/home/username/projects"},

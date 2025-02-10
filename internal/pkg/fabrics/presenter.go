@@ -10,14 +10,14 @@ import (
 
 type Presenter struct{}
 
-func (p Presenter) Build(format domain.Format) commands.Presenter {
+func (p Presenter) Build(format domain.Format, opts presenters.Opts) commands.Presenter {
 	switch format {
 	case domain.JSONFormat:
-		return presenters.NewJSON(os.Stdout)
+		return presenters.NewJSON(os.Stdout, opts)
 	case domain.AliasFormat:
-		return presenters.NewAlias(os.Stdout)
+		return presenters.NewAlias(os.Stdout, opts)
 	default:
-		return presenters.NewList(os.Stdout)
+		return presenters.NewList(os.Stdout, opts)
 	}
 }
 
