@@ -25,7 +25,7 @@ func NewList(out io.Writer, opts Opts) List {
 }
 
 func (l List) Present(marks []domain.Mark) error {
-	_, long := l.opts["l"]
+	long := longOpt(l.opts)
 	err := l.printHeader(long)
 	if err != nil {
 		return err
@@ -36,6 +36,12 @@ func (l List) Present(marks []domain.Mark) error {
 		}
 	}
 	return l.out.Flush()
+}
+
+func longOpt(opts Opts) bool {
+	_, long := opts["long"]
+	_, short := opts["l"]
+	return short || long
 }
 
 func (l List) printHeader(long bool) error {

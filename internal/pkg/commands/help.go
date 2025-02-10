@@ -107,7 +107,7 @@ examples:
 `
 
 const HelpMessageList = `
-usage: cdf list [--format]
+usage: cdf list [--format] [--long | -l]
 
 summary: prints list of added marks.
 
@@ -126,10 +126,15 @@ options:
 
 		Otherwise it will be default.
 
+	-l, --long
+		Add more field (e.g. usage status) to outputs. Each format use it in its own way. 
+
 examples:
 	cdf list
 
 	cdf list --format=json
+
+	cdf list -l
 `
 
 const HelpMessageF = `
