@@ -7,6 +7,7 @@ type Format string
 const (
 	DefaultFormat Format = "default"
 	JSONFormat    Format = "json"
+	AliasFormat   Format = "alias"
 )
 
 var ErrUnknownFormat = errors.New("unknown format")
@@ -18,6 +19,7 @@ func ParseFormat(s *string) (Format, bool) {
 	formatMap := map[string]Format{
 		string(JSONFormat):    JSONFormat,
 		string(DefaultFormat): DefaultFormat,
+		string(AliasFormat):   AliasFormat,
 		"":                    DefaultFormat,
 	}
 	format, ok := formatMap[*s]

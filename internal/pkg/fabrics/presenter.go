@@ -14,6 +14,8 @@ func (p Presenter) Build(format domain.Format) commands.Presenter {
 	switch format {
 	case domain.JSONFormat:
 		return presenters.NewJSON(os.Stdout)
+	case domain.AliasFormat:
+		return presenters.NewAlias(os.Stdout)
 	default:
 		return presenters.NewList(os.Stdout)
 	}
