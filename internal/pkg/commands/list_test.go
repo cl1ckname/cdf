@@ -6,6 +6,7 @@ import (
 	"github.com/cl1ckname/cdf/internal/collection/dict"
 	"github.com/cl1ckname/cdf/internal/pkg/commands"
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
+	"github.com/cl1ckname/cdf/internal/pkg/presenters"
 	"github.com/cl1ckname/cdf/internal/test/mock"
 	"github.com/cl1ckname/cdf/internal/utils"
 )
@@ -28,7 +29,7 @@ func TestList(t *testing.T) {
 	}
 
 	f := domain.JSONFormat
-	err := cmd.Execute(f)
+	err := cmd.Execute(f, nil)
 	if err != nil {
 		t.Fatalf("unexpected error %v", err)
 	}
@@ -54,7 +55,7 @@ type presenterFabric struct {
 	presenter *presenter
 }
 
-func (p *presenterFabric) Build(f domain.Format) commands.Presenter {
+func (p *presenterFabric) Build(f domain.Format, _ presenters.Opts) commands.Presenter {
 	p.format = f
 	return p.presenter
 }

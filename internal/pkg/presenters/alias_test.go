@@ -11,7 +11,8 @@ import (
 
 func TestAlias(t *testing.T) {
 	buf := bytes.NewBuffer(nil)
-	l := presenters.NewAlias(buf)
+	opts := presenters.Opts{}
+	l := presenters.NewAlias(buf, opts)
 	marks := []domain.Mark{
 		{Alias: "home"},
 		{Alias: "user"},
