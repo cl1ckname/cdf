@@ -6,23 +6,20 @@ import (
 	"io"
 	"io/fs"
 	"os"
-	"path/filepath"
 
 	"github.com/cl1ckname/cdf/internal/collection/dict"
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
 )
 
 const (
-	MarksFilename = "marks"
-	ReplaceFlag   = os.O_TRUNC | os.O_WRONLY
-	AppendFlag    = os.O_APPEND | os.O_WRONLY
-	ReadFlag      = os.O_RDONLY
-	Perm          = 0666
+	ReplaceFlag = os.O_TRUNC | os.O_WRONLY
+	AppendFlag  = os.O_APPEND | os.O_WRONLY
+	ReadFlag    = os.O_RDONLY
+	Perm        = 0666
 )
 
 type Catalog interface {
-	EnsureRoot() error
-	EnsureMarks() error
+	Ensure() error
 }
 
 type FS interface {
@@ -32,28 +29,18 @@ type FS interface {
 
 type Filestore struct {
 	FS
-	base string
+	file string
 }
 
-func New(sys FS, base string) Filestore {
+func New(sys FS, file string) Filestore {
 	return Filestore{
 		FS:   sys,
-		base: base,
+		file: file,
 	}
-}
-
-func Init(dir Catalog) error {
-	if err := dir.EnsureRoot(); err != nil {
-		return err
-	}
-	if err := dir.EnsureMarks(); err != nil {
-		return err
-	}
-	return nil
 }
 
 func (f Filestore) Load() (domain.Collection, error) {
-	file, err := readOpen(f.marks())
+	file, err := readOpen(f.file)
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +73,7 @@ func (f Filestore) WriteTo(to, value string) error {
 }
 
 func (f Filestore) Save(marks domain.Collection) error {
-	dst, err := replaceOpen(f.marks())
+	dst, err := replaceOpen(f.file)
 	if err != nil {
 		return err
 	}
@@ -102,10 +89,6 @@ func (f Filestore) Save(marks domain.Collection) error {
 	}
 
 	return nil
-}
-
-func (f Filestore) marks() string {
-	return filepath.Join(f.base, MarksFilename)
 }
 
 func appendOpen(path string) (*os.File, error) {

@@ -24,11 +24,11 @@ func Run(version string, arguments ...string) error {
 	}
 	defaultFolder = filepath.Join(defaultFolder, "cdf")
 
-	cdfCatalog := catalog.New(defaultFolder, filesystem.FS)
-	storage := store.New(filesystem.FS, defaultFolder)
-	if err = store.Init(cdfCatalog); err != nil {
+	filepath, err := catalog.InitInFolder(defaultFolder, filesystem.FS)
+	if err != nil {
 		return err
 	}
+	storage := store.New(filesystem.FS, filepath)
 
 	helpCommand := commands.NewHelp(version, os.Stdout)
 
