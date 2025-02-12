@@ -11,14 +11,14 @@ type MarkFabric interface {
 }
 
 type Add struct {
-	appender Store
-	builder  MarkFabric
+	Base
+	builder MarkFabric
 }
 
-func NewAdd(a Store, f MarkFabric) Add {
+func NewAdd(a Base, f MarkFabric) Add {
 	return Add{
-		appender: a,
-		builder:  f,
+		Base:    a,
+		builder: f,
 	}
 }
 
@@ -28,7 +28,7 @@ func (c Add) Execute(alias, path string) error {
 		return err
 	}
 
-	col, err := c.appender.Load()
+	col, err := c.store.Load()
 	if err != nil {
 		return err
 	}
@@ -39,5 +39,9 @@ func (c Add) Execute(alias, path string) error {
 	}
 	col.Set(*mark)
 
-	return c.appender.Save(col)
+	if err := c.store.Save(col); err != nil {
+		return err
+	}
+	c.log.Info("new mark added:", mark.Path, "as", mark.Alias)
+	return nil
 }

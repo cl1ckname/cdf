@@ -49,8 +49,10 @@ func TestRemove(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			st := new(mock.Store)
+			log := new(mock.Logger)
+			base := commands.NewBase(st, log)
 			st.OldData = dict.Dict(test.arr)
-			cmd := commands.NewRemove(st)
+			cmd := commands.NewRemove(base)
 			err := cmd.Execute(test.arg)
 			if err != nil {
 				t.Fatalf("unexpected error: %v\n", err)
@@ -72,8 +74,10 @@ func TestRemove(t *testing.T) {
 
 func TestNotFount(t *testing.T) {
 	st := new(mock.Store)
+	log := new(mock.Logger)
+	base := commands.NewBase(st, log)
 	st.OldData = dict.Dict{}
-	cmd := commands.NewRemove(st)
+	cmd := commands.NewRemove(base)
 	err := cmd.Execute("b")
 	if err == nil {
 		t.Fatalf("expected error, got nil\n")

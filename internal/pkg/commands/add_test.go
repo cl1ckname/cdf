@@ -18,11 +18,13 @@ func TestAddSuccess(t *testing.T) {
 	}
 
 	store := new(mock.Store)
+	log := new(mock.Logger)
+	base := commands.NewBase(store, log)
 	store.OldData = dict.Dict{}
 	f := new(fabric)
 	f.mark = &newMark
 
-	cmd := commands.NewAdd(store, f)
+	cmd := commands.NewAdd(base, f)
 
 	err := cmd.Execute(alias, path)
 	if err != nil {
@@ -52,15 +54,17 @@ func TestAddAlreadyExists(t *testing.T) {
 		Path:  path,
 	}
 
-	st := new(mock.Store)
+	store := new(mock.Store)
+	log := new(mock.Logger)
+	base := commands.NewBase(store, log)
 	dt := dict.Dict{}
 	dt.Set(newMark)
-	st.OldData = dt
+	store.OldData = dt
 
 	f := new(fabric)
 	f.mark = &newMark
 
-	cmd := commands.NewAdd(st, f)
+	cmd := commands.NewAdd(base, f)
 
 	err := cmd.Execute(alias, path)
 	if err == nil {

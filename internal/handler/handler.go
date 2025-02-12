@@ -130,11 +130,9 @@ func (h Marks) Move(args Args, kw Kwargs) error {
 	}
 	alias := args[0]
 
-	path, err := h.move.Execute(alias, cwd)
-	if err != nil {
+	if err := h.move.Execute(alias, cwd); err != nil {
 		return err
 	}
-	fmt.Printf("you're in %s now\n", path)
 	return nil
 }
 

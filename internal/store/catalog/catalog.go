@@ -6,6 +6,8 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+
+	"github.com/cl1ckname/cdf/internal/logger"
 )
 
 const (
@@ -19,29 +21,31 @@ type FS interface {
 	Mkdir(name string, perm fs.FileMode) error
 }
 
-func EnsureFile(filepath string, fs FS) error {
+func EnsureFile(log logger.Logger, filepath string, fs FS) error {
 	exists, err := marksExists(filepath, fs)
 	if err != nil {
 		return err
 	}
 	if exists {
+		log.Info("marks file found at", filepath)
 		return nil
 	}
+	log.Info("marks file at", filepath, "does not exist, createing")
 	return fs.Touch(filepath, Perm)
 }
 
-func InitInFolder(path string, fs FS) (string, error) {
-	if err := ensureRoot(fs, path); err != nil {
+func InitInFolder(log logger.Logger, path string, fs FS) (string, error) {
+	if err := ensureRoot(log, fs, path); err != nil {
 		return "", err
 	}
 	marksFilePath := filepath.Join(path, MarksFilename)
-	if err := EnsureFile(marksFilePath, fs); err != nil {
+	if err := EnsureFile(log, marksFilePath, fs); err != nil {
 		return "", err
 	}
 	return marksFilePath, nil
 }
 
-func ensureRoot(sys FS, root string) error {
+func ensureRoot(log logger.Logger, sys FS, root string) error {
 	exists, err := rootExists(sys, root)
 	if err != nil {
 		return err
@@ -49,6 +53,7 @@ func ensureRoot(sys FS, root string) error {
 	if exists {
 		return nil
 	}
+	log.Info("cdf data folder does not exist, creating")
 	return sys.Mkdir(root, Perm)
 }
 

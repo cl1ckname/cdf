@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/cl1ckname/cdf/internal/app"
@@ -10,7 +9,13 @@ import (
 var version string
 
 func main() {
-	if err := app.Run(version, os.Args...); err != nil {
-		fmt.Println(err)
+	sys := app.System{
+		Stdout:  os.Stdout,
+		Stderr:  os.Stderr,
+		Args:    os.Args,
+		Version: version,
+	}
+	if err := app.Run(sys); err != nil {
+		os.Stderr.WriteString(err.Error())
 	}
 }
