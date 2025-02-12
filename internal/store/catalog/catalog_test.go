@@ -7,6 +7,7 @@ import (
 	"testing/fstest"
 
 	"github.com/cl1ckname/cdf/internal/store/catalog"
+	"github.com/cl1ckname/cdf/internal/test/mock"
 )
 
 func TestEnsureFolder(t *testing.T) {
@@ -14,6 +15,7 @@ func TestEnsureFolder(t *testing.T) {
 
 	home := "home"
 	marks := filepath.Join(home, catalog.MarksFilename)
+	log := new(mock.Logger)
 
 	tests := []struct {
 		name  string
@@ -48,7 +50,7 @@ func TestEnsureFolder(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			f := new(fsmock)
 			f.MapFS = test.fs
-			_, err := catalog.InitInFolder(test.root, f)
+			_, err := catalog.InitInFolder(log, test.root, f)
 			if (err != nil) != test.err {
 				t.Fatalf("should be error")
 			}
@@ -71,6 +73,7 @@ func TestEnsureFile(t *testing.T) {
 
 	home := "home"
 	marks := filepath.Join(home, catalog.MarksFilename)
+	log := new(mock.Logger)
 
 	tests := []struct {
 		name  string
@@ -105,7 +108,7 @@ func TestEnsureFile(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			f := new(fsmock)
 			f.MapFS = test.fs
-			err := catalog.EnsureFile(test.root, f)
+			err := catalog.EnsureFile(log, test.root, f)
 			if (err != nil) != test.err {
 				t.Fatalf("should be error")
 			}

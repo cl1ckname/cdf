@@ -62,7 +62,7 @@ func (h Help) write(msg string) error {
 }
 
 const HelpMessage = `
-usage: [cdf | f] [-h | --help] [--usefile] <command> [<args>]
+usage: [cdf | f] [-h | --help] [--usefile] [--verbose] <command> [<args>]
 
 To get information about specific command use
 
@@ -89,6 +89,10 @@ service commands for f usage:
 options:
 	--usefile=<filepath>
 		Customise path to file with marks saves. Creates it if not exists. Default is ~/.config/cdf.
+
+	--verbose
+		Shows more information about command execution. Information messages are writing into stdout,
+		warnings and errors into stderr.
 `
 
 const HelpMessageAdd = `

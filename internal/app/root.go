@@ -48,7 +48,10 @@ func Run(sys System) error {
 	marksHandler := buildHandler(sys, storage, log)
 
 	if verbose {
-		sys.Stdout.Write([]byte{'\n'})
+		_, err = sys.Stdout.Write([]byte{'\n'})
+		if err != nil {
+			return err
+		}
 	}
 
 	call, err := cli.NewCall(args, kwargs)
@@ -75,7 +78,7 @@ func buildHandler(sys System, storage commands.Store, log logger.Logger) handler
 	marksFabric := fabrics.NewMarks(filesystem.FS, clock.Time)
 	addCommand := commands.NewAdd(base, marksFabric)
 
-	listCommand := commands.NewList(storage, fabrics.PresenterInstance)
+	listCommand := commands.NewList(base, fabrics.PresenterInstance)
 
 	removeCommand := commands.NewRemove(base)
 

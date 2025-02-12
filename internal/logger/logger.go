@@ -12,7 +12,7 @@ const (
 	Error Level = iota
 	// Warning is messages about abnormal but not critical things
 	Warning
-	// Info level is common debugging infomation. Should contain messages for developers
+	// Info level is common debugging information. Should contain messages for developers
 	Info
 	// Debug level is only for development, no debug logs in master
 	Debug

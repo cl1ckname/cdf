@@ -22,20 +22,19 @@ func TestMove(t *testing.T) {
 	d := dict.Dict{}
 	d.Set(mark)
 	store := new(mock.Store)
+	log := new(mock.Logger)
+	base := commands.NewBase(store, log)
 	store.OldData = d
 	clock := mock.Clock{
 		Time: time.Now(),
 	}
 
-	cmd := commands.NewMove(store, m, clock)
+	cmd := commands.NewMove(base, m, clock)
 	to := "/tmp/cdf-2112"
 
-	got, err := cmd.Execute(mark.Alias, to)
+	err := cmd.Execute(mark.Alias, to)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
-	}
-	if expected := mark.Path; got != expected {
-		t.Fatalf("expected %s, got %s", expected, got)
 	}
 	if writes := len(m.writes); writes != 1 {
 		t.Fatalf("expected only one write, actually %d", writes)
