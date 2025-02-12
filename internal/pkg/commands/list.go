@@ -14,13 +14,13 @@ type PresenterFabric interface {
 }
 
 type List struct {
-	store     Store
+	Base
 	presenter PresenterFabric
 }
 
-func NewList(l Store, f PresenterFabric) List {
+func NewList(l Base, f PresenterFabric) List {
 	return List{
-		store:     l,
+		Base:      l,
 		presenter: f,
 	}
 }

@@ -12,33 +12,37 @@ type Mover interface {
 }
 
 type Move struct {
-	store Store
+	Base
 	mover Mover
 	clock clock.Clock
 }
 
-func NewMove(store Store, mover Mover, cl clock.Clock) Move {
+func NewMove(base Base, mover Mover, cl clock.Clock) Move {
 	return Move{
-		store: store,
+		Base:  base,
 		mover: mover,
 		clock: cl,
 	}
 }
 
-func (c Move) Execute(alias string, resTo string) (string, error) {
+func (c Move) Execute(alias string, resTo string) error {
 	coll, err := c.store.Load()
 	if err != nil {
-		return "", err
+		return err
 	}
 	mark, ok := coll.Get(alias)
 	if !ok {
-		return "", fmt.Errorf("mark %s: %w", alias, domain.ErrNotFound)
+		return fmt.Errorf("mark %s: %w", alias, domain.ErrNotFound)
 	}
 	mark.Use(c.clock.Now())
 	coll.Set(mark)
 	if err := c.store.Save(coll); err != nil {
-		return "", err
+		return err
 	}
 
-	return mark.Path, c.mover.WriteTo(resTo, mark.Path)
+	if err := c.mover.WriteTo(resTo, mark.Path); err != nil {
+		return err
+	}
+	c.log.Info("you're at", mark.Path, "now")
+	return nil
 }

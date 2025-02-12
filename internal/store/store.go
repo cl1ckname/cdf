@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/cl1ckname/cdf/internal/collection/dict"
+	"github.com/cl1ckname/cdf/internal/logger"
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
 )
 
@@ -18,10 +19,6 @@ const (
 	Perm        = 0666
 )
 
-type Catalog interface {
-	Ensure() error
-}
-
 type FS interface {
 	Stat(path string) (fs.FileInfo, error)
 	Abs(path string) (string, error)
@@ -30,12 +27,14 @@ type FS interface {
 type Filestore struct {
 	FS
 	file string
+	log  logger.Logger
 }
 
-func New(sys FS, file string) Filestore {
+func New(sys FS, file string, log logger.Logger) Filestore {
 	return Filestore{
 		FS:   sys,
 		file: file,
+		log:  log,
 	}
 }
 
@@ -46,7 +45,7 @@ func (f Filestore) Load() (domain.Collection, error) {
 	}
 	reader := bufio.NewReader(file)
 	marks := make(map[string]domain.Mark)
-	for {
+	for i := 1; true; i++ {
 		line, err := reader.ReadBytes('\n')
 		if err != nil {
 			if errors.Is(err, io.EOF) {
@@ -55,7 +54,8 @@ func (f Filestore) Load() (domain.Collection, error) {
 		}
 		rec, err := ParseRecord(line)
 		if err != nil {
-			return nil, err
+			f.log.Warning("error while reading line", i, ":", err.Error())
+			continue
 		}
 		marks[rec.Alias] = NewMark(rec)
 	}

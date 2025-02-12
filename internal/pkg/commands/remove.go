@@ -1,6 +1,8 @@
 package commands
 
 import (
+	"fmt"
+
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
 )
 
@@ -10,23 +12,27 @@ type Remover interface {
 }
 
 type Remove struct {
-	remover Store
+	Base
 }
 
-func NewRemove(remover Store) Remove {
+func NewRemove(base Base) Remove {
 	return Remove{
-		remover: remover,
+		Base: base,
 	}
 }
 
 func (r Remove) Execute(alias string) error {
-	marks, err := r.remover.Load()
+	marks, err := r.store.Load()
 	if err != nil {
 		return err
 	}
 	removed := marks.Remove(alias)
 	if !removed {
-		return domain.ErrNotFound
+		return fmt.Errorf("mark %s %w", alias, domain.ErrNotFound)
 	}
-	return r.remover.Save(marks)
+	if err := r.store.Save(marks); err != nil {
+		return err
+	}
+	r.log.Info("mark", alias, "removed")
+	return nil
 }
