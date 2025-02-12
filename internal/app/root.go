@@ -112,15 +112,30 @@ func marksFile(log logger.Logger, fs catalog.FS, kwargs handler.Kwargs) (string,
 }
 
 func defaultMarksPath(log logger.Logger, fs catalog.FS) (string, error) {
-	defaultFolder, err := os.UserConfigDir()
+	folder, err := defaultMarksFolder(log)
 	if err != nil {
 		return "", err
 	}
-	defaultFolder = filepath.Join(defaultFolder, "cdf")
+	path := filepath.Join(folder, "cdf")
 
-	filepath, err := catalog.InitInFolder(log, defaultFolder, fs)
+	filepath, err := catalog.InitInFolder(log, path, fs)
 	if err != nil {
 		return "", err
 	}
 	return filepath, nil
+}
+
+func defaultMarksFolder(log logger.Logger) (string, error) {
+	xdgDataDir := os.Getenv("XDG_DATA_HOME")
+	if len(xdgDataDir) > 0 {
+		log.Info("XDG_DATA_HOME is set, using it")
+		return xdgDataDir, nil
+	}
+	defaultFolder, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	defaultFolder = filepath.Join(defaultFolder, ".local", "share")
+
+	return defaultFolder, nil
 }
