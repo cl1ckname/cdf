@@ -3,8 +3,8 @@ package commands_test
 import (
 	"testing"
 
-	"github.com/cl1ckname/cdf/internal/collection/dict"
 	"github.com/cl1ckname/cdf/internal/pkg/commands"
+	"github.com/cl1ckname/cdf/internal/pkg/dict"
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
 	"github.com/cl1ckname/cdf/internal/pkg/presenters"
 	"github.com/cl1ckname/cdf/internal/test/mock"

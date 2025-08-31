@@ -3,8 +3,8 @@ package fabrics
 import (
 	"fmt"
 	"io/fs"
+	"time"
 
-	"github.com/cl1ckname/cdf/internal/clock"
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
 )
 
@@ -14,14 +14,14 @@ type FS interface {
 }
 
 type Marks struct {
-	fs    FS
-	clock clock.Clock
+	fs  FS
+	now func() time.Time
 }
 
-func NewMarks(fs FS, clock clock.Clock) Marks {
+func NewMarks(fs FS, now func() time.Time) Marks {
 	return Marks{
-		fs:    fs,
-		clock: clock,
+		fs:  fs,
+		now: now,
 	}
 }
 
@@ -37,7 +37,7 @@ func (b Marks) Build(alias, path string) (*domain.Mark, error) {
 	if err != nil {
 		return nil, err
 	}
-	mark, err := domain.NewMark(alias, absPath, b.clock.Now())
+	mark, err := domain.NewMark(alias, absPath, time.Now())
 	if err != nil {
 		return nil, err
 	}

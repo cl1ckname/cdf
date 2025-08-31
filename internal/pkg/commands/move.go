@@ -1,21 +1,18 @@
 package commands
 
 import (
-	"fmt"
-
-	"github.com/cl1ckname/cdf/internal/clock"
-	"github.com/cl1ckname/cdf/internal/pkg/domain"
+	"time"
 )
 
 type Move struct {
 	Base
-	clock clock.Clock
+	now func() time.Time
 }
 
-func NewMove(base Base, cl clock.Clock) Move {
+func NewMove(base Base, now func() time.Time) Move {
 	return Move{
-		Base:  base,
-		clock: cl,
+		Base: base,
+		now:  now,
 	}
 }
 
@@ -24,16 +21,16 @@ func (c Move) Execute(alias string) error {
 	if err != nil {
 		return err
 	}
-	mark, ok := coll.Get(alias)
-	if !ok {
-		return fmt.Errorf("mark %s: %w", alias, domain.ErrNotFound)
+	mark, err := coll.Get(alias)
+	if err != nil {
+		return err
 	}
-	mark.Use(c.clock.Now())
+	mark.Use(c.now())
 	coll.Set(mark)
 	if err := c.store.Save(coll); err != nil {
 		return err
 	}
 
-	fmt.Printf(mark.Path)
+	c.log.Info(mark.Path)
 	return nil
 }

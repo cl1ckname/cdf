@@ -1,3 +1,4 @@
+// Package app builds default application with dependencies
 package app
 
 import (
@@ -5,10 +6,10 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/cl1ckname/cdf/embeds"
 	"github.com/cl1ckname/cdf/internal/cli"
-	"github.com/cl1ckname/cdf/internal/clock"
 	"github.com/cl1ckname/cdf/internal/handler"
 	"github.com/cl1ckname/cdf/internal/logger"
 	"github.com/cl1ckname/cdf/internal/pkg/commands"
@@ -81,14 +82,14 @@ func buildLogger(sys System, verbose bool) logger.Logger {
 func buildHandler(fs fabrics.FS, sys System, storage commands.Store, log logger.Logger) handler.Marks {
 	base := commands.NewBase(storage, log)
 	helpCommand := commands.NewHelp(sys.Version, sys.Stdout)
-	marksFabric := fabrics.NewMarks(fs, clock.Time)
+	marksFabric := fabrics.NewMarks(fs, time.Now)
 	addCommand := commands.NewAdd(base, marksFabric)
 
 	listCommand := commands.NewList(base, fabrics.PresenterInstance)
 
 	removeCommand := commands.NewRemove(base)
 
-	moveCommand := commands.NewMove(base, clock.Time)
+	moveCommand := commands.NewMove(base, time.Now)
 
 	shellCommand := commands.NewShell(sys.Stdout, commands.Wraps{
 		domain.FishShell: embeds.FishShell,

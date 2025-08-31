@@ -5,8 +5,8 @@ import (
 	"maps"
 	"testing"
 
-	"github.com/cl1ckname/cdf/internal/collection/dict"
 	"github.com/cl1ckname/cdf/internal/pkg/commands"
+	"github.com/cl1ckname/cdf/internal/pkg/dict"
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
 	"github.com/cl1ckname/cdf/internal/test/mock"
 )
@@ -82,8 +82,8 @@ func TestNotFount(t *testing.T) {
 	if err == nil {
 		t.Fatalf("expected error, got nil\n")
 	}
-	if !errors.Is(err, domain.ErrNotFound) {
-		t.Fatalf("expected %v, got %v", domain.ErrNotFound, err)
+	if !errors.Is(err, dict.ErrNotFound) {
+		t.Fatalf("expected %v, got %v", dict.ErrNotFound, err)
 	}
 }
 

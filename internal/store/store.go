@@ -7,8 +7,8 @@ import (
 	"io/fs"
 	"os"
 
-	"github.com/cl1ckname/cdf/internal/collection/dict"
 	"github.com/cl1ckname/cdf/internal/logger"
+	"github.com/cl1ckname/cdf/internal/pkg/dict"
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
 )
 

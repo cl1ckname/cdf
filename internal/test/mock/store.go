@@ -1,6 +1,6 @@
 package mock
 
-import "github.com/cl1ckname/cdf/internal/collection/dict"
+import "github.com/cl1ckname/cdf/internal/pkg/dict"
 
 type Store struct {
 	OldData dict.Dict

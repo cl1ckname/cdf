@@ -1,8 +1,6 @@
 package commands
 
 import (
-	"fmt"
-
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
 )
 
@@ -26,9 +24,8 @@ func (r Remove) Execute(alias string) error {
 	if err != nil {
 		return err
 	}
-	removed := marks.Remove(alias)
-	if !removed {
-		return fmt.Errorf("mark %s %w", alias, domain.ErrNotFound)
+	if err = marks.Remove(alias); err != nil {
+		return err
 	}
 	if err := r.store.Save(marks); err != nil {
 		return err

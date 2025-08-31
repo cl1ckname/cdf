@@ -1,8 +1,10 @@
 package commands
 
 import (
+	"errors"
 	"fmt"
 
+	"github.com/cl1ckname/cdf/internal/pkg/dict"
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
 )
 
@@ -33,9 +35,12 @@ func (c Add) Execute(alias, path string) error {
 		return err
 	}
 
-	rec, exists := col.Get(mark.Alias)
-	if exists {
+	rec, err := col.Get(mark.Alias)
+	if err == nil {
 		return fmt.Errorf("this alias already in use (%s): %w", rec.Alias, domain.ErrAlreadyExists)
+	}
+	if !errors.Is(err, dict.ErrNotFound) {
+		return err
 	}
 	col.Set(*mark)
 

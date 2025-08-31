@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cl1ckname/cdf/internal/collection/dict"
 	"github.com/cl1ckname/cdf/internal/pkg/commands"
+	"github.com/cl1ckname/cdf/internal/pkg/dict"
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
 	"github.com/cl1ckname/cdf/internal/test/mock"
 )
@@ -24,11 +24,11 @@ func TestMove(t *testing.T) {
 	log := new(mock.Logger)
 	base := commands.NewBase(store, log)
 	store.OldData = d
-	clock := mock.Clock{
-		Time: time.Now(),
-	}
 
-	cmd := commands.NewMove(base, clock)
+	dt := time.Now()
+	now := makeNow(dt)
+
+	cmd := commands.NewMove(base, now)
 
 	err := cmd.Execute(mark.Alias)
 	if err != nil {
@@ -38,14 +38,20 @@ func TestMove(t *testing.T) {
 	if store.NewData == nil {
 		t.Fatalf("wasn't updated")
 	}
-	saved, ok := store.NewData.Get(mark.Alias)
-	if !ok {
+	saved, err := store.NewData.Get(mark.Alias)
+	if err != nil {
 		t.Fatalf("move mark not found")
 	}
 	if expected := mark.TimesUsed + 1; saved.TimesUsed != expected {
 		t.Fatalf("used %d times insted of %d", saved.TimesUsed, expected)
 	}
-	if saved.LastUsed != clock.Time {
+	if saved.LastUsed != dt {
 		t.Fatalf("last used not updated")
+	}
+}
+
+func makeNow(t time.Time) func() time.Time {
+	return func() time.Time {
+		return t
 	}
 }

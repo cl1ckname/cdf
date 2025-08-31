@@ -4,8 +4,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/cl1ckname/cdf/internal/collection/dict"
 	"github.com/cl1ckname/cdf/internal/pkg/commands"
+	"github.com/cl1ckname/cdf/internal/pkg/dict"
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
 	"github.com/cl1ckname/cdf/internal/test/mock"
 )
@@ -30,8 +30,8 @@ func TestAddSuccess(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	got, ok := store.NewData.Get(alias)
-	if !ok {
+	got, err := store.NewData.Get(alias)
+	if err != nil {
 		t.Fatalf("mark %s not set", alias)
 	}
 	var counter int

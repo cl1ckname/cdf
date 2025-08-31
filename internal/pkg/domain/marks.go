@@ -15,7 +15,6 @@ var (
 	ErrInvalidAlias  = errors.New("invalid path alias")
 	ErrInvalidPath   = errors.New("invalid target path")
 	ErrAlreadyExists = errors.New("bookmark with this alias already exist")
-	ErrNotFound      = errors.New("not found")
 )
 
 type Mark struct {
