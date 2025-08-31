@@ -2,10 +2,14 @@
 
 **CDF** is a fast and efficient terminal-based CLI tool, written in Go, designed to perform a single task with precision and simplicity. Following the Unix philosophy of "do one thing, but do it well," cdf has zero dependencies and provides a minimalistic solution to a specific problem. Its lightweight nature ensures that it integrates seamlessly into any Unix-like environment, delivering a reliable and focused user experience.
 
-**Warning! CDF is under heavy development! Use for your own risk!**
-
 ## Install
-Right now there is no way to get a ready-made binary, but work is actively underway on this. For now, you can compile and install the utility yourself.
+Using Go:
+
+```console
+go install github.com/cl1ckname/cdf@latest
+```
+
+Right now there is no way to get a prebuilt binary, but work is actively underway on this. For now, you can compile and install the utility yourself.
 
 ### Get the binary
 
@@ -59,13 +63,19 @@ cdf shell fish | source
 ## Usage
 The CDF should be treated as a list of bookmarks in the browser, not as a search bar, unlike similar projects the CDF does not collect any data on its own, so the user himself must add points for quick navigation. 
 ### Add mark
-The first step in using the program is to add a mark. 
+The first step in using the program is to add a mark at cwd
+
+```console
+cdf add home
+```
+
+You can specify mark directory
 
 ```console
 cdf add home /home/username
 ```
 
-Both absolute and relative paths can be used for this.
+Both absolute and relative paths can be used for this
 
 ```console
 cdf add projects ./projects # in /home/username/projects

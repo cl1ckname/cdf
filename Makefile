@@ -2,7 +2,7 @@
 APP_NAME = cdf
 
 # Version
-VERSION = 0.1.1
+VERSION = 0.1.0
 
 # Go build command
 GOOS = $(shell go env GOOS)
