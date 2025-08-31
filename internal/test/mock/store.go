@@ -1,17 +1,17 @@
 package mock
 
-import "github.com/cl1ckname/cdf/internal/pkg/domain"
+import "github.com/cl1ckname/cdf/internal/collection/dict"
 
 type Store struct {
-	OldData domain.Collection
-	NewData domain.Collection
+	OldData dict.Dict
+	NewData dict.Dict
 }
 
-func (s *Store) Load() (domain.Collection, error) {
+func (s *Store) Load() (dict.Dict, error) {
 	return s.OldData, nil
 }
 
-func (s *Store) Save(c domain.Collection) error {
+func (s *Store) Save(c dict.Dict) error {
 	s.NewData = c
 	return nil
 }

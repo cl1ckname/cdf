@@ -1,8 +1,10 @@
 package commands
 
-import "github.com/cl1ckname/cdf/internal/pkg/domain"
+import (
+	"github.com/cl1ckname/cdf/internal/collection/dict"
+)
 
 type Store interface {
-	Load() (domain.Collection, error)
-	Save(domain.Collection) error
+	Load() (dict.Dict, error)
+	Save(dict.Dict) error
 }

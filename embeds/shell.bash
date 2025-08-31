@@ -1,6 +1,6 @@
 function f() {
 	local tmp="$(mktemp -t "cdf-cwd.XXXXXX")" cwd
-	cdf move "$@" --cwd-file="$tmp"
+	cdf move "$@" > "$tmp"
 	if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
 		builtin cd -- "$cwd"
 	fi

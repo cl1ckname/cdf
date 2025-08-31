@@ -38,7 +38,7 @@ func New(sys FS, file string, log logger.Logger) Filestore {
 	}
 }
 
-func (f Filestore) Load() (domain.Collection, error) {
+func (f Filestore) Load() (dict.Dict, error) {
 	file, err := readOpen(f.file)
 	if err != nil {
 		return nil, err
@@ -72,7 +72,7 @@ func (f Filestore) WriteTo(to, value string) error {
 	return err
 }
 
-func (f Filestore) Save(marks domain.Collection) error {
+func (f Filestore) Save(marks dict.Dict) error {
 	dst, err := replaceOpen(f.file)
 	if err != nil {
 		return err

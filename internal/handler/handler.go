@@ -33,7 +33,6 @@ func NewMarks(
 	move commands.Move,
 	shell commands.Shell,
 ) Marks {
-
 	return Marks{
 		help:   help,
 		add:    add,
@@ -118,19 +117,13 @@ func (h Marks) Remove(args Args, _ Kwargs) error {
 	return h.remove.Execute(alias)
 }
 
-const movePathWriePathkey = "cwd-file"
-
 func (h Marks) Move(args Args, kw Kwargs) error {
-	cwd, ok := kw[movePathWriePathkey]
-	if !ok {
-		return fmt.Errorf("--cwd-file required")
-	}
 	if ac := len(args); ac != 1 {
 		return fmt.Errorf("required 1 arg (alias), got: %d", ac)
 	}
 	alias := args[0]
 
-	if err := h.move.Execute(alias, cwd); err != nil {
+	if err := h.move.Execute(alias); err != nil {
 		return err
 	}
 	return nil

@@ -2,9 +2,11 @@
 APP_NAME = cdf
 
 # Version
-VERSION = 0.1.0
+VERSION = 0.1.1
 
 # Go build command
+GOOS = $(shell go env GOOS)
+GOARCH = $(shell go env GOARCH)
 GO_BUILD = go build -ldflags="-X main.version=$(VERSION) -s -w" -o bin/$(APP_NAME)-$(VERSION)-$(GOOS)-$(GOARCH)
 
 # Platforms to build for
@@ -30,9 +32,9 @@ $(PLATFORMS):
 
 build:
 	@mkdir -p bin
-	@BINARY="bin/$(APP_NAME)-$(VERSION)-$(shell go env GOOS)-$(shell go env GOARCH)"; \
+	@BINARY="bin/$(APP_NAME)-$(VERSION)-$(GOOS)-$(GOARCH)"; \
 	echo "Building $$BINARY"; \
-	GOOS=$(shell go env GOOS) GOARCH=$(shell go env GOARCH) $(GO_BUILD)
+	GOOS=$(GOOS) GOARCH=$(GOARCH) $(GO_BUILD)
 	
 # Install the binary to $GOBIN
 install: build
@@ -44,7 +46,7 @@ install: build
 		echo "Error: GOBIN directory $(GOBIN) does not exist."; \
 		exit 1; \
 	fi
-	@BINARY="bin/$(APP_NAME)-$(VERSION)-$(shell go env GOOS)-$(shell go env GOARCH)"; \
+	@BINARY="bin/$(APP_NAME)-$(VERSION)-$(GOOS)-$(GOARCH)"; \
 	cp "$$BINARY" "$(GOBIN)/$(APP_NAME)"; \
 	if [ ! -f "$$BINARY" ]; then \
 		echo "Error: Binary $$BINARY not found. Please run 'make build' first."; \

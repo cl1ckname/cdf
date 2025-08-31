@@ -1,10 +1,8 @@
 function f
-	set tmp (mktemp -t "cdf-cwd.XXXXXX")
-	cdf move $argv --cwd-file="$tmp"
-	if set cwd (command cat -- "$tmp"); and [ -n "$cwd" ]; and [ "$cwd" != "$PWD" ]
+	set cwd (cdf move $argv)
+	if [ -n "$cwd" ]; and [ "$cwd" != "$PWD" ]
 		builtin cd -- "$cwd"
 	end
-	rm -f -- "$tmp"
 end
 
 set arguments_file "~/.config/cdf/marks"

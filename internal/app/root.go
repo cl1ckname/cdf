@@ -16,7 +16,6 @@ import (
 	"github.com/cl1ckname/cdf/internal/store"
 	"github.com/cl1ckname/cdf/internal/store/catalog"
 	"github.com/cl1ckname/cdf/internal/store/filesystem"
-	"github.com/cl1ckname/cdf/internal/store/mover"
 )
 
 const (
@@ -82,8 +81,7 @@ func buildHandler(sys System, storage commands.Store, log logger.Logger) handler
 
 	removeCommand := commands.NewRemove(base)
 
-	mvr := mover.NewMover(filesystem.FS)
-	moveCommand := commands.NewMove(base, mvr, clock.Time)
+	moveCommand := commands.NewMove(base, clock.Time)
 
 	shellCommand := commands.NewShell(sys.Stdout, commands.Wraps{
 		domain.FishShell: embeds.FishShell,

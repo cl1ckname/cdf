@@ -18,7 +18,6 @@ func TestMove(t *testing.T) {
 		Path:      "/home/user",
 		TimesUsed: 10,
 	}
-	m := new(mover)
 	d := dict.Dict{}
 	d.Set(mark)
 	store := new(mock.Store)
@@ -29,19 +28,11 @@ func TestMove(t *testing.T) {
 		Time: time.Now(),
 	}
 
-	cmd := commands.NewMove(base, m, clock)
-	to := "/tmp/cdf-2112"
+	cmd := commands.NewMove(base, clock)
 
-	err := cmd.Execute(mark.Alias, to)
+	err := cmd.Execute(mark.Alias)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
-	}
-	if writes := len(m.writes); writes != 1 {
-		t.Fatalf("expected only one write, actually %d", writes)
-	}
-	write := m.writes[0]
-	if expected := to + mark.Path; expected != write {
-		t.Fatalf("expected write %s, got %s", expected, write)
 	}
 
 	if store.NewData == nil {
@@ -57,13 +48,4 @@ func TestMove(t *testing.T) {
 	if saved.LastUsed != clock.Time {
 		t.Fatalf("last used not updated")
 	}
-}
-
-type mover struct {
-	writes []string
-}
-
-func (m *mover) WriteTo(file, value string) error {
-	m.writes = append(m.writes, file+value)
-	return nil
 }
