@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -38,13 +39,19 @@ func Run(sys System) error {
 	_, verbose := kwargs[VerboseArg]
 	log := buildLogger(sys, verbose)
 
-	filepath, err := marksFile(log, filesystem.FS, kwargs)
+	homedir, err := os.UserHomeDir()
+	if err != nil {
+		return fmt.Errorf("get home dir: %w", err)
+	}
+
+	fs := filesystem.New(homedir)
+	filepath, err := marksFile(log, fs, kwargs)
 	if err != nil {
 		return err
 	}
-	storage := store.New(filesystem.FS, filepath, log)
+	storage := store.New(fs, filepath, log)
 
-	marksHandler := buildHandler(sys, storage, log)
+	marksHandler := buildHandler(fs, sys, storage, log)
 
 	if verbose {
 		_, err = sys.Stdout.Write([]byte{'\n'})
@@ -71,10 +78,10 @@ func buildLogger(sys System, verbose bool) logger.Logger {
 	return logger.New(sys.Stdout, sys.Stderr, loglevel)
 }
 
-func buildHandler(sys System, storage commands.Store, log logger.Logger) handler.Marks {
+func buildHandler(fs fabrics.FS, sys System, storage commands.Store, log logger.Logger) handler.Marks {
 	base := commands.NewBase(storage, log)
 	helpCommand := commands.NewHelp(sys.Version, sys.Stdout)
-	marksFabric := fabrics.NewMarks(filesystem.FS, clock.Time)
+	marksFabric := fabrics.NewMarks(fs, clock.Time)
 	addCommand := commands.NewAdd(base, marksFabric)
 
 	listCommand := commands.NewList(base, fabrics.PresenterInstance)

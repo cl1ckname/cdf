@@ -16,12 +16,13 @@ const (
 	ReplaceFlag = os.O_TRUNC | os.O_WRONLY
 	AppendFlag  = os.O_APPEND | os.O_WRONLY
 	ReadFlag    = os.O_RDONLY
-	Perm        = 0666
+	Perm        = 0o666
 )
 
 type FS interface {
 	Stat(path string) (fs.FileInfo, error)
 	Abs(path string) (string, error)
+	OpenFile(path string, flag int, perm fs.FileMode) (*os.File, error)
 }
 
 type Filestore struct {
@@ -39,7 +40,7 @@ func New(sys FS, file string, log logger.Logger) Filestore {
 }
 
 func (f Filestore) Load() (dict.Dict, error) {
-	file, err := readOpen(f.file)
+	file, err := f.readOpen(f.file)
 	if err != nil {
 		return nil, err
 	}
@@ -62,22 +63,11 @@ func (f Filestore) Load() (dict.Dict, error) {
 	return dict.Dict(marks), nil
 }
 
-func (f Filestore) WriteTo(to, value string) error {
-	dst, err := appendOpen(to)
-	if err != nil {
-		return err
-	}
-	defer dst.Close()
-	_, err = dst.WriteString(value)
-	return err
-}
-
 func (f Filestore) Save(marks dict.Dict) error {
-	dst, err := replaceOpen(f.file)
+	dst, err := f.replaceOpen(f.file)
 	if err != nil {
 		return err
 	}
-	defer dst.Close()
 	for mark := range marks.Iterate() {
 		rec := NewRecord(mark)
 		if err := rec.Write(dst); err != nil {
@@ -91,20 +81,16 @@ func (f Filestore) Save(marks dict.Dict) error {
 	return nil
 }
 
-func appendOpen(path string) (*os.File, error) {
-	return openWithFlag(path, AppendFlag)
+func (f Filestore) readOpen(path string) (*os.File, error) {
+	return f.openWithFlag(path, ReadFlag)
 }
 
-func readOpen(path string) (*os.File, error) {
-	return openWithFlag(path, ReadFlag)
+func (f Filestore) replaceOpen(path string) (*os.File, error) {
+	return f.openWithFlag(path, ReplaceFlag)
 }
 
-func replaceOpen(path string) (*os.File, error) {
-	return openWithFlag(path, ReplaceFlag)
-}
-
-func openWithFlag(path string, flag int) (*os.File, error) {
-	file, err := os.OpenFile(path, flag, Perm)
+func (f Filestore) openWithFlag(path string, flag int) (*os.File, error) {
+	file, err := f.OpenFile(path, flag, Perm)
 	if err != nil {
 		return nil, err
 	}

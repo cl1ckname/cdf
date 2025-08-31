@@ -16,6 +16,6 @@ func main() {
 		Version: version,
 	}
 	if err := app.Run(sys); err != nil {
-		os.Stderr.WriteString(err.Error())
+		_, _ = os.Stderr.WriteString(err.Error())
 	}
 }

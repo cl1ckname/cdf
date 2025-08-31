@@ -12,7 +12,7 @@ import (
 
 const (
 	MarksFilename = "marks"
-	Perm          = 0755
+	Perm          = 0o755
 )
 
 type FS interface {
