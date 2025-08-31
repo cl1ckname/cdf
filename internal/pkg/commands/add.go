@@ -24,8 +24,16 @@ func NewAdd(a Base, f MarkFabric) Add {
 	}
 }
 
-func (c Add) Execute(alias, path string) error {
-	mark, err := c.builder.Build(alias, path)
+func (c Add) Execute(alias string, path *string) error {
+	markPath, err := c.store.Cwd()
+	if err != nil {
+		return fmt.Errorf("get cwd: %w", err)
+	}
+
+	if path != nil {
+		markPath = *path
+	}
+	mark, err := c.builder.Build(alias, markPath)
 	if err != nil {
 		return err
 	}

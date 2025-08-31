@@ -24,21 +24,18 @@ func (d Dict) Set(m domain.Mark) {
 	d[m.Alias] = m
 }
 
-func (d Dict) Iterate() <-chan domain.Mark {
-	c := make(chan domain.Mark)
-	go func() {
-		defer close(c)
-		for _, mark := range d {
-			c <- mark
-		}
-	}()
-	return c
-}
-
 func (d Dict) Remove(alias string) error {
 	if _, ok := d[alias]; !ok {
 		return fmt.Errorf("mark %s: %w", alias, ErrNotFound)
 	}
 	delete(d, alias)
 	return nil
+}
+
+func (d Dict) Slice() []domain.Mark {
+	marks := make([]domain.Mark, 0, len(d))
+	for _, mark := range d {
+		marks = append(marks, mark)
+	}
+	return marks
 }

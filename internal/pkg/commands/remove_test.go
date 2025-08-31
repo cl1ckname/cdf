@@ -62,8 +62,8 @@ func TestRemove(t *testing.T) {
 				t.Fatalf("no data saved")
 			}
 			rest := map[string]struct{}{}
-			for mark := range st.NewData.Iterate() {
-				rest[mark.Alias] = stub
+			for alias := range st.NewData {
+				rest[alias] = stub
 			}
 			if !maps.Equal(test.rest, rest) {
 				t.Fatalf("wrong key set, expected %v, got %v\n", test.rest, rest)

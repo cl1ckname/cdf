@@ -11,7 +11,7 @@ function f() {
 # cdf move completion for bash
 _cdf_move_completion() {
     # Define the marks file location
-    local marks_file="$HOME/.config/cdf/marks"
+    local marks_file="$HOME/.local/share/cdf/marks"
     if [[ "${COMP_WORDS[1]}" == "remove" || "${COMP_WORDS[1]}" == "move" || "${COMP_WORDS[0]}" == "f" ]]; then
 		# Check if the marks file exists
 		if [[ -f "$marks_file" ]]; then

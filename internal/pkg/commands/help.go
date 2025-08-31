@@ -88,7 +88,7 @@ service commands for f usage:
 
 options:
 	--usefile=<filepath>
-		Customise path to file with marks saves. Creates it if not exists. Default is ~/.config/cdf.
+		Customise path to file with marks saves. Creates it if not exists. Default is ~/.local/share/cdf.
 
 	--verbose
 		Shows more information about command execution. Information messages are writing into stdout,
@@ -96,7 +96,7 @@ options:
 `
 
 const HelpMessageAdd = `
-usage: cdf add <alias> <directory>
+usage: cdf add <alias> [directory]
 
 summary: adds new mark at specified directory
 
@@ -104,7 +104,8 @@ options:
 	<alias>
 		The name of bookmark that will be used for future moves. Should contain  only a-z A-Z 0-9 _ - / symbols.
 	<directory>
-		The absolute or relative path to exsisting directory. Future relocations will take place within this directory.
+		The absolute or relative path to exsisting directory. If not presented cwd is used. Future relocations will take place within this
+		directory.
 
 examples:
 	Use with absolute path
@@ -184,18 +185,18 @@ exaples:
 `
 
 const HelpMessageMove = `
-usege: cdf move <alias> --cwf-file=<path>
+usege: cdf move <alias>
 
-summary: writes path of alias to cwd-file
+summary: prints path of alias
 
 description:
 	In Unix subprocess couldn't change state of parent process, so any cd
 	command of command couldn't change cwd of shell. But we can do a trick
 	if we define a shell function that performs cd. Exactly this way are using
-	in CDF. This command writes path to --cwd-file and f() function of your shell
+	in CDF. This command writes path to stdout and f() function of your shell
 	reads it and performs cd to it. 
 	YOU SHOULDN'T CALL IT BY HANDS, LET f() TO DO IT.
 
 examples:
-	cdf move home --cwd-file=/tmp/cdf-cwd-251267
+	cdf move home
 `

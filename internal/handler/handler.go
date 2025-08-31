@@ -91,11 +91,14 @@ func (h Marks) Help(args Args, _ Kwargs) error {
 }
 
 func (h Marks) Add(args Args, _ Kwargs) error {
-	if len(args) < 2 {
-		return fmt.Errorf("alias mark path required")
+	if len(args) < 1 {
+		return fmt.Errorf("mark alias required")
 	}
 	alias := args[0]
-	path := args[1]
+	var path *string
+	if len(args) > 1 {
+		path = &args[1]
+	}
 
 	return h.add.Execute(alias, path)
 }

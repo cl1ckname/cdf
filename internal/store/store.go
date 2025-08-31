@@ -23,6 +23,7 @@ type FS interface {
 	Stat(path string) (fs.FileInfo, error)
 	Abs(path string) (string, error)
 	OpenFile(path string, flag int, perm fs.FileMode) (*os.File, error)
+	Cwd() (string, error)
 }
 
 type Filestore struct {
@@ -68,7 +69,7 @@ func (f Filestore) Save(marks dict.Dict) error {
 	if err != nil {
 		return err
 	}
-	for mark := range marks.Iterate() {
+	for _, mark := range marks {
 		rec := NewRecord(mark)
 		if err := rec.Write(dst); err != nil {
 			return err
@@ -79,6 +80,10 @@ func (f Filestore) Save(marks dict.Dict) error {
 	}
 
 	return nil
+}
+
+func (f Filestore) Cwd() (string, error) {
+	return f.FS.Cwd()
 }
 
 func (f Filestore) readOpen(path string) (*os.File, error) {

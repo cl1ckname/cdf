@@ -17,6 +17,9 @@ ARCHITECTURES = amd64 arm64
 .PHONY:
 	build
 	install
+	all
+
+all: linter test build
 
 build-all: $(PLATFORMS)
 

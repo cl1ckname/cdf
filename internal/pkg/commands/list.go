@@ -30,10 +30,7 @@ func (l List) Execute(format domain.Format, opts presenters.Opts) error {
 	if err != nil {
 		return err
 	}
-	var marks []domain.Mark
-	for mark := range coll.Iterate() {
-		marks = append(marks, mark)
-	}
+	marks := coll.Slice()
 	presenter := l.presenter.Build(format, opts)
 	return presenter.Present(marks)
 }

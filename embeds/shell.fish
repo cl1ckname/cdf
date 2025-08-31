@@ -5,7 +5,7 @@ function f
 	end
 end
 
-set arguments_file "~/.config/cdf/marks"
+set arguments_file "~/.local/share/cdf/marks"
 set aliases (cdf list --format=alias)
 complete -f -c f  -a $aliases
 complete -f -c cdf -n __fish_use_subcommand -a help -d "Get help"

@@ -9,6 +9,7 @@ import (
 type Store interface {
 	Load() (dict.Dict, error)
 	Save(dict.Dict) error
+	Cwd() (string, error)
 }
 
 type Base struct {

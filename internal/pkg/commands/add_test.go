@@ -10,8 +10,12 @@ import (
 	"github.com/cl1ckname/cdf/internal/test/mock"
 )
 
+const (
+	alias = "home"
+	path  = "/home/user"
+)
+
 func TestAddSuccess(t *testing.T) {
-	alias, path := "home", "/home/user"
 	newMark := domain.Mark{
 		Alias: alias,
 		Path:  path,
@@ -26,7 +30,8 @@ func TestAddSuccess(t *testing.T) {
 
 	cmd := commands.NewAdd(base, f)
 
-	err := cmd.Execute(alias, path)
+	path := path
+	err := cmd.Execute(alias, &path)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -34,12 +39,8 @@ func TestAddSuccess(t *testing.T) {
 	if err != nil {
 		t.Fatalf("mark %s not set", alias)
 	}
-	var counter int
-	for range store.NewData.Iterate() {
-		counter++
-	}
-	if counter != 1 {
-		t.Fatalf("too much adds: %d", counter)
+	if count := len(store.NewData); count != 1 {
+		t.Fatalf("too much adds: %d", count)
 	}
 
 	if got != newMark {
@@ -48,7 +49,6 @@ func TestAddSuccess(t *testing.T) {
 }
 
 func TestAddAlreadyExists(t *testing.T) {
-	alias, path := "home", "/home/user"
 	newMark := domain.Mark{
 		Alias: alias,
 		Path:  path,
@@ -66,12 +66,47 @@ func TestAddAlreadyExists(t *testing.T) {
 
 	cmd := commands.NewAdd(base, f)
 
-	err := cmd.Execute(alias, path)
+	path := path
+	err := cmd.Execute(alias, &path)
 	if err == nil {
 		t.Fatalf("expected error: %v", err)
 	}
 	if !errors.Is(err, domain.ErrAlreadyExists) {
 		t.Fatalf("expected ErrAlreadyExists, go %v", err)
+	}
+}
+
+func TestAddCwd(t *testing.T) {
+	alias, path := "home", "/home/user"
+	newMark := domain.Mark{
+		Alias: alias,
+		Path:  path,
+	}
+
+	store := new(mock.Store)
+	log := new(mock.Logger)
+	base := commands.NewBase(store, log)
+	store.OldData = dict.Dict{}
+	store.Wd = path
+	f := new(fabric)
+	f.mark = &newMark
+
+	cmd := commands.NewAdd(base, f)
+
+	err := cmd.Execute(alias, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	got, err := store.NewData.Get(alias)
+	if err != nil {
+		t.Fatalf("mark %s not set", alias)
+	}
+	if count := len(store.NewData); count != 1 {
+		t.Fatalf("too much adds: %d", count)
+	}
+
+	if got != newMark {
+		t.Fatalf("wrong saved mark: %v vs %v", got, newMark)
 	}
 }
 
