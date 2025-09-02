@@ -25,11 +25,13 @@ type Logger interface {
 	Info(v ...any)
 	Warning(v ...any)
 	Error(v ...any)
+	Print(v ...any)
 }
 
 func New(stdout, stderr io.Writer, level Level) Logger {
 	l := logger{
 		level: level,
+		out:   log.New(stdout, "", 0),
 	}
 	l.error = log.New(stderr, "ERROR: ", flags)
 	if level >= Warning {
@@ -47,28 +49,33 @@ func New(stdout, stderr io.Writer, level Level) Logger {
 type logger struct {
 	level                    Level
 	debug, info, warn, error *log.Logger
+	out                      *log.Logger
 }
 
-func (l *logger) Debug(v ...any) {
+func (l logger) Debug(v ...any) {
 	if l.debug != nil {
 		l.debug.Println(v...)
 	}
 }
 
-func (l *logger) Info(v ...any) {
+func (l logger) Info(v ...any) {
 	if l.info != nil {
 		l.info.Println(v...)
 	}
 }
 
-func (l *logger) Warning(v ...any) {
+func (l logger) Warning(v ...any) {
 	if l.warn != nil {
 		l.warn.Println(v...)
 	}
 }
 
-func (l *logger) Error(v ...any) {
+func (l logger) Error(v ...any) {
 	if l.error != nil {
 		l.error.Println(v...)
 	}
+}
+
+func (l logger) Print(v ...any) {
+	l.out.Println(v...)
 }

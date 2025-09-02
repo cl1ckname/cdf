@@ -4,6 +4,7 @@ type Logger struct {
 	info   [][]any
 	warns  [][]any
 	errors [][]any
+	prints [][]any
 }
 
 func (l *Logger) Info(v ...any) {
@@ -17,4 +18,8 @@ func (l *Logger) Warning(v ...any) {
 
 func (l *Logger) Error(v ...any) {
 	l.errors = append(l.errors, v)
+}
+
+func (l *Logger) Print(v ...any) {
+	l.prints = append(l.prints, v)
 }

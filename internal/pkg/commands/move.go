@@ -31,6 +31,6 @@ func (c Move) Execute(alias string) error {
 		return err
 	}
 
-	c.log.Info(mark.Path)
+	c.log.Print(mark.Path)
 	return nil
 }
