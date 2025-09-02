@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/cl1ckname/cdf/internal/pkg/commands"
-	"github.com/cl1ckname/cdf/internal/pkg/dict"
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
 	"github.com/cl1ckname/cdf/internal/test/mock"
 )
@@ -24,7 +23,7 @@ func TestAddSuccess(t *testing.T) {
 	store := new(mock.Store)
 	log := new(mock.Logger)
 	base := commands.NewBase(store, log)
-	store.OldData = dict.Dict{}
+	store.OldData = domain.Dict{}
 	f := new(fabric)
 	f.mark = &newMark
 
@@ -57,7 +56,7 @@ func TestAddAlreadyExists(t *testing.T) {
 	store := new(mock.Store)
 	log := new(mock.Logger)
 	base := commands.NewBase(store, log)
-	dt := dict.Dict{}
+	dt := domain.Dict{}
 	dt.Set(newMark)
 	store.OldData = dt
 
@@ -86,7 +85,7 @@ func TestAddCwd(t *testing.T) {
 	store := new(mock.Store)
 	log := new(mock.Logger)
 	base := commands.NewBase(store, log)
-	store.OldData = dict.Dict{}
+	store.OldData = domain.Dict{}
 	store.Wd = path
 	f := new(fabric)
 	f.mark = &newMark

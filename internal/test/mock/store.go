@@ -1,19 +1,24 @@
 package mock
 
-import "github.com/cl1ckname/cdf/internal/pkg/dict"
+import (
+	"github.com/cl1ckname/cdf/internal/config"
+	"github.com/cl1ckname/cdf/internal/pkg/domain"
+)
 
 type Store struct {
-	OldData dict.Dict
-	NewData dict.Dict
+	OldData domain.Dict
+	NewData domain.Dict
 	Wd      string
 }
 
-func (s *Store) Load() (dict.Dict, error) {
-	return s.OldData, nil
+func (s *Store) Load() (*config.Config, error) {
+	return &config.Config{
+		Marks: s.OldData,
+	}, nil
 }
 
-func (s *Store) Save(c dict.Dict) error {
-	s.NewData = c
+func (s *Store) Save(c config.Config) error {
+	s.NewData = c.Marks
 	return nil
 }
 

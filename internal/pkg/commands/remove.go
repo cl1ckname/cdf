@@ -20,14 +20,14 @@ func NewRemove(base Base) Remove {
 }
 
 func (r Remove) Execute(alias string) error {
-	marks, err := r.store.Load()
+	marks, err := r.Load()
 	if err != nil {
 		return err
 	}
 	if err = marks.Remove(alias); err != nil {
 		return err
 	}
-	if err := r.store.Save(marks); err != nil {
+	if err := r.Save(marks); err != nil {
 		return err
 	}
 	r.log.Info("mark", alias, "removed")

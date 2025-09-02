@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/cl1ckname/cdf/internal/pkg/commands"
-	"github.com/cl1ckname/cdf/internal/pkg/dict"
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
 	"github.com/cl1ckname/cdf/internal/pkg/presenters"
 	"github.com/cl1ckname/cdf/internal/test/mock"
@@ -19,7 +18,7 @@ func TestList(t *testing.T) {
 	st := new(mock.Store)
 	log := new(mock.Logger)
 	base := commands.NewBase(st, log)
-	dt := dict.Dict{}
+	dt := domain.Dict{}
 	st.OldData = dt
 
 	cmd := commands.NewList(base, fab)

@@ -1,14 +1,12 @@
 package store
 
 import (
-	"bufio"
-	"errors"
-	"io"
+	"encoding/json"
 	"io/fs"
 	"os"
 
+	"github.com/cl1ckname/cdf/internal/config"
 	"github.com/cl1ckname/cdf/internal/logger"
-	"github.com/cl1ckname/cdf/internal/pkg/dict"
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
 )
 
@@ -40,40 +38,31 @@ func New(sys FS, file string, log logger.Logger) Filestore {
 	}
 }
 
-func (f Filestore) Load() (dict.Dict, error) {
+func (f Filestore) Load() (*config.Config, error) {
 	file, err := f.readOpen(f.file)
 	if err != nil {
 		return nil, err
 	}
-	reader := bufio.NewReader(file)
-	marks := make(map[string]domain.Mark)
-	for i := 1; true; i++ {
-		line, err := reader.ReadBytes('\n')
-		if err != nil {
-			if errors.Is(err, io.EOF) {
-				break
-			}
-		}
-		rec, err := ParseRecord(line)
-		if err != nil {
-			f.log.Warning("error while reading line", i, ":", err.Error())
-			continue
-		}
-		marks[rec.Alias] = NewMark(rec)
+	var cfg config.Config
+	if err := json.NewDecoder(file).Decode(&cfg); err != nil {
+		return nil, err
 	}
-	return dict.Dict(marks), nil
+	if err := file.Close(); err != nil {
+		return nil, err
+	}
+	if cfg.Marks == nil {
+		cfg.Marks = domain.Dict{}
+	}
+	return &cfg, nil
 }
 
-func (f Filestore) Save(marks dict.Dict) error {
+func (f Filestore) Save(cfg config.Config) error {
 	dst, err := f.replaceOpen(f.file)
 	if err != nil {
 		return err
 	}
-	for _, mark := range marks {
-		rec := NewRecord(mark)
-		if err := rec.Write(dst); err != nil {
-			return err
-		}
+	if err := json.NewEncoder(dst).Encode(cfg); err != nil {
+		return err
 	}
 	if err := dst.Close(); err != nil {
 		return err

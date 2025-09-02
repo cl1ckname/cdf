@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/cl1ckname/cdf/internal/pkg/commands"
-	"github.com/cl1ckname/cdf/internal/pkg/dict"
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
 	"github.com/cl1ckname/cdf/internal/test/mock"
 )
@@ -51,7 +50,7 @@ func TestRemove(t *testing.T) {
 			st := new(mock.Store)
 			log := new(mock.Logger)
 			base := commands.NewBase(st, log)
-			st.OldData = dict.Dict(test.arr)
+			st.OldData = domain.Dict(test.arr)
 			cmd := commands.NewRemove(base)
 			err := cmd.Execute(test.arg)
 			if err != nil {
@@ -76,14 +75,14 @@ func TestNotFount(t *testing.T) {
 	st := new(mock.Store)
 	log := new(mock.Logger)
 	base := commands.NewBase(st, log)
-	st.OldData = dict.Dict{}
+	st.OldData = domain.Dict{}
 	cmd := commands.NewRemove(base)
 	err := cmd.Execute("b")
 	if err == nil {
 		t.Fatalf("expected error, got nil\n")
 	}
-	if !errors.Is(err, dict.ErrNotFound) {
-		t.Fatalf("expected %v, got %v", dict.ErrNotFound, err)
+	if !errors.Is(err, domain.ErrNotFound) {
+		t.Fatalf("expected %v, got %v", domain.ErrNotFound, err)
 	}
 }
 

@@ -26,7 +26,7 @@ func NewList(l Base, f PresenterFabric) List {
 }
 
 func (l List) Execute(format domain.Format, opts presenters.Opts) error {
-	coll, err := l.store.Load()
+	coll, err := l.Load()
 	if err != nil {
 		return err
 	}

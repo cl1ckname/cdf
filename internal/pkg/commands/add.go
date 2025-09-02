@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/cl1ckname/cdf/internal/pkg/dict"
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
 )
 
@@ -38,7 +37,7 @@ func (c Add) Execute(alias string, path *string) error {
 		return err
 	}
 
-	col, err := c.store.Load()
+	col, err := c.Load()
 	if err != nil {
 		return err
 	}
@@ -47,12 +46,12 @@ func (c Add) Execute(alias string, path *string) error {
 	if err == nil {
 		return fmt.Errorf("this alias already in use (%s): %w", rec.Alias, domain.ErrAlreadyExists)
 	}
-	if !errors.Is(err, dict.ErrNotFound) {
+	if !errors.Is(err, domain.ErrNotFound) {
 		return err
 	}
 	col.Set(*mark)
 
-	if err := c.store.Save(col); err != nil {
+	if err := c.Save(col); err != nil {
 		return err
 	}
 	c.log.Info("new mark added:", mark.Path, "as", mark.Alias)

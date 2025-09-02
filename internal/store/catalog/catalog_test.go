@@ -109,8 +109,11 @@ func TestEnsureFile(t *testing.T) {
 			f := new(fsmock)
 			f.MapFS = test.fs
 			err := catalog.EnsureFile(log, test.root, f)
-			if (err != nil) != test.err {
+			if (err == nil) && test.err {
 				t.Fatalf("should be error")
+			}
+			if (err != nil) && !test.err {
+				t.Fatalf("should be no error, got %v", err)
 			}
 			if mkd := test.touch; mkd != nil {
 				if len(f.touchs) == 0 {
@@ -132,7 +135,7 @@ type fsmock struct {
 	touchs []string
 }
 
-func (f *fsmock) Touch(path string, _ fs.FileMode) error {
+func (f *fsmock) WriteFile(path string, _ []byte, _ fs.FileMode) error {
 	f.touchs = append(f.touchs, path)
 	return nil
 }

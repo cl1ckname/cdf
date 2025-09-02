@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/cl1ckname/cdf/internal/pkg/commands"
-	"github.com/cl1ckname/cdf/internal/pkg/dict"
 	"github.com/cl1ckname/cdf/internal/pkg/domain"
 	"github.com/cl1ckname/cdf/internal/test/mock"
 )
@@ -18,7 +17,7 @@ func TestMove(t *testing.T) {
 		Path:      "/home/user",
 		TimesUsed: 10,
 	}
-	d := dict.Dict{}
+	d := domain.Dict{}
 	d.Set(mark)
 	store := new(mock.Store)
 	log := new(mock.Logger)

@@ -11,27 +11,30 @@ import (
 )
 
 const (
-	MarksFilename = "marks"
+	MarksFilename = "marks.json"
 	Perm          = 0o755
 )
 
 type FS interface {
 	fs.StatFS
-	Touch(name string, perm fs.FileMode) error
+	WriteFile(name string, data []byte, perm fs.FileMode) error
 	Mkdir(name string, perm fs.FileMode) error
 }
 
 func EnsureFile(log logger.Logger, filepath string, fs FS) error {
 	exists, err := marksExists(filepath, fs)
 	if err != nil {
-		return err
+		return fmt.Errorf("check exists: %w", err)
 	}
 	if exists {
 		log.Info("marks file found at", filepath)
 		return nil
 	}
 	log.Info("marks file at", filepath, "does not exist, createing")
-	return fs.Touch(filepath, Perm)
+	if err := fs.WriteFile(filepath, []byte("{}"), Perm); err != nil {
+		return fmt.Errorf("write new config: %w", err)
+	}
+	return nil
 }
 
 func InitInFolder(log logger.Logger, path string, fs FS) (string, error) {

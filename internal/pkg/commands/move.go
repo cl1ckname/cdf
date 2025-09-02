@@ -17,7 +17,7 @@ func NewMove(base Base, now func() time.Time) Move {
 }
 
 func (c Move) Execute(alias string) error {
-	coll, err := c.store.Load()
+	coll, err := c.Load()
 	if err != nil {
 		return err
 	}
@@ -27,7 +27,7 @@ func (c Move) Execute(alias string) error {
 	}
 	mark.Use(c.now())
 	coll.Set(mark)
-	if err := c.store.Save(coll); err != nil {
+	if err := c.Save(coll); err != nil {
 		return err
 	}
 
